@@ -51,4 +51,4 @@ npm run dev
 ---
 
 ## 📜 Membrete y Pie Institucional
-> *Residencia Gerontológica Municipal "Hogar Madre Teresa" · San Martín y 25 de Mayo, Viale*
+> *Residencia Gerontológica Municipal "Hogar Madre Teresa" · 25 de Mayo, Viale*
