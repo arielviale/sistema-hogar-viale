@@ -2,6 +2,14 @@
 // DATOS SEMILLA INICIALES - SISTEMA HOGAR MADRE TERESA (VIALE)
 // ============================================================
 
+export const INITIAL_AUTORIDAD_MUNICIPAL = {
+  nombre_completo: "Bibiana Rojas",
+  cargo: "Secretaría de Desarrollo Social y Humano",
+  organismo: "Municipalidad de Viale",
+  rol_institucional: "Representante Municipal a Cargo del Hogar Madre Teresa",
+  foto_url: "assets/bibiana_rojas.png"
+};
+
 export const INITIAL_PROFESIONALES = [
   {
     id: "prof-1",
@@ -77,8 +85,8 @@ export const INITIAL_PROFESIONALES = [
     id: "prof-8",
     nombre_completo: "Dra. Beatriz Elena Gómez",
     dni: "20.145.890",
-    profesion: "Médica / Dirección Institucional",
-    especialidad: "Gestión en Salud Pública y Gerontología",
+    profesion: "Médica Especialista en Gerontología Clínica",
+    especialidad: "Salud Pública y Asesoría Gerontológica",
     matricula_provincial: "M.P. 3840 - Entre Ríos",
     firma_url: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='50' viewBox='0 0 180 50'><path d='M10 40 Q50 5 90 35 T140 15 T170 30' fill='none' stroke='%230f172a' stroke-width='2.3' stroke-linecap='round'/></svg>",
     activo: true

@@ -10,6 +10,12 @@ import { renderBloqueFirmaSello } from '../components/BloqueFirmaSello.js';
 export function renderEquipoProfesionalView(container) {
   const profesionales = store.data.profesionales;
   const activeProf = store.getActiveProfessional();
+  const autoridad = store.data.autoridad_municipal || {
+    nombre_completo: "Bibiana Rojas",
+    cargo: "Secretaría de Desarrollo Social y Humano",
+    organismo: "Municipalidad de Viale",
+    foto_url: "assets/bibiana_rojas.png"
+  };
 
   container.innerHTML = `
     <div class="animate-fade-in">
@@ -27,6 +33,36 @@ export function renderEquipoProfesionalView(container) {
         <button id="btn-alta-profesional" class="btn btn-primary">
           + Registrar Nuevo Profesional
         </button>
+      </div>
+
+      <!-- Tarjeta Oficial: Representación Municipal a Cargo del Hogar Madre Teresa -->
+      <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #072517 0%, #009640 100%); color: white; border: none; box-shadow: 0 10px 25px -5px rgba(0, 150, 64, 0.35);">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+          <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <img src="${autoridad.foto_url}" alt="${autoridad.nombre_completo}" style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3.5px solid #8dc63f; box-shadow: 0 4px 15px rgba(0,0,0,0.35); flex-shrink: 0;" />
+            <div>
+              <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255, 255, 255, 0.18); padding: 0.2rem 0.75rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; border: 1px solid rgba(255, 255, 255, 0.25);">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/></svg>
+                Institución Pública Municipal · Municipalidad de Viale
+              </div>
+              <h2 style="font-size: 1.45rem; font-weight: 800; color: white; margin: 0; line-height: 1.2;">
+                ${autoridad.nombre_completo}
+              </h2>
+              <div style="font-size: 0.95rem; font-weight: 700; color: #86efac; margin-top: 2px;">
+                ${autoridad.cargo}
+              </div>
+              <div style="font-size: 0.82rem; color: #e2e8f0; margin-top: 0.25rem; max-width: 620px; line-height: 1.4;">
+                Representante y Autoridad Institucional a Cargo de la Residencia Gerontológica "Hogar Madre Teresa" por el Departamento Ejecutivo Municipal de Viale.
+              </div>
+            </div>
+          </div>
+
+          <div style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2); padding: 1rem 1.25rem; border-radius: 12px; text-align: center; min-width: 170px;">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: #86efac; font-weight: 700;">Dependencia Oficial</div>
+            <div style="font-size: 1rem; font-weight: 800; color: white; margin-top: 4px;">Poder Ejecutivo Municipal</div>
+            <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 2px;">Viale, Entre Ríos</div>
+          </div>
+        </div>
       </div>
 
       <!-- Tarjeta informativa del usuario en sesión -->
@@ -82,7 +118,7 @@ export function renderEquipoProfesionalView(container) {
                 <option value="Licenciado/a en Psicología">Licenciado/a en Psicología</option>
                 <option value="Terapista Ocupacional">Terapista Ocupacional</option>
                 <option value="Licenciado/a en Nutrición">Licenciado/a en Nutrición</option>
-                <option value="Coordinación / Dirección Institucional">Coordinación / Dirección Institucional</option>
+                <option value="Asesoría Técnica / Especialidad Asistencial">Asesoría Técnica / Especialidad Asistencial</option>
               </select>
             </div>
             <div class="form-group">

@@ -10,6 +10,12 @@ export function renderSidebar(container) {
   const activeView = store.activeView;
   const activeProf = store.getActiveProfessional();
   const stats = store.getEstadisticas();
+  const autoridad = store.data.autoridad_municipal || {
+    nombre_completo: "Bibiana Rojas",
+    cargo: "Secretaría de Desarrollo Social y Humano",
+    organismo: "Municipalidad de Viale",
+    foto_url: "assets/bibiana_rojas.png"
+  };
 
   container.innerHTML = `
     <aside class="sidebar">
@@ -91,18 +97,23 @@ export function renderSidebar(container) {
         </div>
       </nav>
 
-      <!-- Pie con Profesional Activo -->
-      <div class="sidebar-footer">
-        <div class="active-user-badge">
-          <div class="user-avatar">
-            ${activeProf.nombre_completo.split(' ').map(n => n[0]).slice(0, 2).join('')}
-          </div>
+      <!-- Pie: Representante Municipal a Cargo del Hogar (Municipalidad de Viale) -->
+      <div class="sidebar-footer" style="padding: 1rem 1.15rem; background: rgba(0, 0, 0, 0.32); border-top: 1px solid rgba(255, 255, 255, 0.12);">
+        <div style="font-size: 0.65rem; text-transform: uppercase; color: #86efac; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.35rem;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/></svg>
+          Representación Municipal a Cargo
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <img src="${autoridad.foto_url}" alt="${autoridad.nombre_completo}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2.5px solid #8dc63f; box-shadow: 0 3px 8px rgba(0,0,0,0.35); flex-shrink: 0;" />
           <div style="min-width: 0; flex: 1;">
-            <div style="font-size: 0.82rem; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${activeProf.nombre_completo}
+            <div style="font-size: 0.9rem; font-weight: 800; color: white; line-height: 1.2;">
+              ${autoridad.nombre_completo}
             </div>
-            <div style="font-size: 0.7rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${activeProf.matricula_provincial}
+            <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.25; margin-top: 2px;">
+              ${autoridad.cargo}
+            </div>
+            <div style="font-size: 0.68rem; color: #86efac; font-weight: 700; margin-top: 1px;">
+              ${autoridad.organismo}
             </div>
           </div>
         </div>

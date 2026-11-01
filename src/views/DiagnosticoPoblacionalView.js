@@ -171,7 +171,7 @@ export function renderDiagnosticoPoblacionalView(container) {
 
           <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 1.25rem; margin-top: 1rem;">
             <div style="font-size: 0.82rem; font-weight: 700; color: #007030; margin-bottom: 0.5rem; text-transform: uppercase;">
-              Validación y Respaldo por Dirección / Coordinación Técnica:
+              Validación y Respaldo Técnico del Equipo Profesional Interdisciplinario:
             </div>
             ${renderBloqueFirmaSello(activeProf, null, true, "INF-DIAG-POBLACIONAL-2026")}
           </div>

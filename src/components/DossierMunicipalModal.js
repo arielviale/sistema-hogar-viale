@@ -73,7 +73,7 @@ export function openDossierMunicipalModal() {
                 RESIDENCIA GERONTOLÓGICA "HOGAR MADRE TERESA"
               </div>
               <div style="font-size: 0.82rem; color: #009640; font-weight: 700;">
-                Secretaría de Desarrollo Social y Acción Humana · Registro Provincial Ley Nº 10.932
+                Secretaría de Desarrollo Social y Humano · Registro Provincial Ley Nº 10.932
               </div>
             </div>
           </div>
@@ -221,29 +221,29 @@ export function openDossierMunicipalModal() {
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
-            <!-- Firma Dirección Médica -->
+            <!-- Firma y Representación Municipal a Cargo -->
             <div style="text-align: center;">
               <div style="height: 60px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 0.5rem;">
-                <img src="${dirMedica.firma_url}" alt="Firma Dirección" style="max-height: 50px;" />
+                <svg width="130" height="45" viewBox="0 0 130 45"><path d="M10 32 Q40 5 70 25 T120 15" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/></svg>
               </div>
               <div style="border-top: 1.5px solid #0f172a; padding-top: 0.5rem;">
-                <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">${dirMedica.nombre_completo}</div>
-                <div style="font-size: 0.78rem; color: #475569;">${dirMedica.especialidad}</div>
-                <div style="font-size: 0.75rem; color: #007030; font-weight: 700;">${dirMedica.matricula_provincial}</div>
-                <div style="font-size: 0.72rem; color: #64748b;">Dirección Médica e Institucional</div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">Bibiana Rojas</div>
+                <div style="font-size: 0.8rem; color: #007030; font-weight: 700;">Secretaría de Desarrollo Social y Humano</div>
+                <div style="font-size: 0.75rem; color: #475569;">Municipalidad de Viale · Entre Ríos</div>
+                <div style="font-size: 0.72rem; color: #64748b;">Representante Municipal a Cargo del Hogar Madre Teresa</div>
               </div>
             </div>
 
-            <!-- Firma Secretaría de Desarrollo Social Municipal -->
+            <!-- Firma Equipo Interdisciplinario Asistencial -->
             <div style="text-align: center;">
               <div style="height: 60px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 0.5rem;">
-                <svg width="120" height="40" viewBox="0 0 120 40"><path d="M10 30 Q40 5 70 25 T110 15" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/></svg>
+                <svg width="130" height="45" viewBox="0 0 130 45"><path d="M15 25 Q45 10 75 30 T125 18" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/></svg>
               </div>
               <div style="border-top: 1.5px solid #0f172a; padding-top: 0.5rem;">
-                <div style="font-weight: 800; font-size: 0.9rem; color: #0f172a;">Secretaría de Desarrollo Social</div>
-                <div style="font-size: 0.78rem; color: #475569;">Área de Personas Mayores y Políticas Sociales</div>
-                <div style="font-size: 0.75rem; color: #007030; font-weight: 700;">Municipalidad de Viale · Entre Ríos</div>
-                <div style="font-size: 0.72rem; color: #64748b;">Visto Bueno del Departamento Ejecutivo</div>
+                <div style="font-weight: 800; font-size: 0.95rem; color: #0f172a;">Equipo Profesional Interdisciplinario</div>
+                <div style="font-size: 0.8rem; color: #475569;">Coordinación Técnica y Asistencial</div>
+                <div style="font-size: 0.75rem; color: #007030; font-weight: 700;">Hogar Madre Teresa · Viale</div>
+                <div style="font-size: 0.72rem; color: #64748b;">Áreas Médica, Social, Kinésica, Psicológica y Enfermería</div>
               </div>
             </div>
           </div>

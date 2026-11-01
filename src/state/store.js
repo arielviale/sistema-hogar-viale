@@ -4,6 +4,7 @@
 // ============================================================
 
 import {
+  INITIAL_AUTORIDAD_MUNICIPAL,
   INITIAL_PROFESIONALES,
   INITIAL_RESIDENTES,
   INITIAL_PLANIFICACION_2026,
@@ -102,6 +103,16 @@ class Store {
           this.saveData(parsed);
         }
 
+        // Sincronizar autoridad municipal
+        parsed.autoridad_municipal = INITIAL_AUTORIDAD_MUNICIPAL;
+        if (parsed.profesionales && Array.isArray(parsed.profesionales)) {
+          const p8 = parsed.profesionales.find(p => p.id === 'prof-8');
+          if (p8 && p8.profesion && p8.profesion.includes('Dirección')) {
+            p8.profesion = "Médica Especialista en Gerontología Clínica";
+            p8.especialidad = "Salud Pública y Asesoría Gerontológica";
+          }
+        }
+
         return parsed;
       }
     } catch (e) {
@@ -109,6 +120,7 @@ class Store {
     }
 
     const defaultData = {
+      autoridad_municipal: INITIAL_AUTORIDAD_MUNICIPAL,
       profesionales: INITIAL_PROFESIONALES,
       residentes: INITIAL_RESIDENTES,
       planificacion: INITIAL_PLANIFICACION_2026,
