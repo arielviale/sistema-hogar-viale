@@ -39,7 +39,7 @@ export function renderEquipoProfesionalView(container) {
       <div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #072517 0%, #009640 100%); color: white; border: none; box-shadow: 0 10px 25px -5px rgba(0, 150, 64, 0.35);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
           <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-            <img src="${autoridad.foto_url}" alt="${autoridad.nombre_completo}" style="width: 88px; height: 88px; border-radius: 50%; object-fit: cover; border: 3.5px solid #8dc63f; box-shadow: 0 4px 15px rgba(0,0,0,0.35); flex-shrink: 0;" />
+            <img src="/assets/bibiana_rojas.png?v=3" alt="${autoridad.nombre_completo}" style="width: 90px; height: 90px; border-radius: 50%; object-fit: contain; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.35)); flex-shrink: 0;" />
             <div>
               <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(255, 255, 255, 0.18); padding: 0.2rem 0.75rem; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; border: 1px solid rgba(255, 255, 255, 0.25);">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/></svg>

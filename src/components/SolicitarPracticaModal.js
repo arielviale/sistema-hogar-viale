@@ -7,7 +7,7 @@
 import { store } from '../state/store.js';
 import { CATALOGO_CIE10, buscarCIE10 } from '../data/catalogoCIE10.js';
 
-export function openSolicitarPracticaModal(residente, onGuardado = () => {}) {
+export function openSolicitarPracticaModal(residente, onGuardado = () => { }) {
   const existing = document.getElementById('solicitar-practica-modal-container');
   if (existing) existing.remove();
 

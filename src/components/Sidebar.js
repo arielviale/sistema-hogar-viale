@@ -98,28 +98,26 @@ export function renderSidebar(container) {
       </nav>
 
       <!-- Pie: Representante Municipal a Cargo del Hogar (Municipalidad de Viale) -->
-      <div class="sidebar-footer" style="padding: 0.9rem 1rem; background: rgba(0, 0, 0, 0.4); border-top: 1px solid rgba(255, 255, 255, 0.1);">
-        <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.6rem;">
-          <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4ade80;"></span>
-          <span style="font-size: 0.68rem; text-transform: uppercase; color: #86efac; font-weight: 800; letter-spacing: 0.06em;">
-            Autoridad Municipal a Cargo
-          </span>
+      <div class="sidebar-footer" style="padding: 1rem 1.15rem; background: rgba(0, 0, 0, 0.45); border-top: 1px solid rgba(255, 255, 255, 0.1);">
+        <div style="font-size: 0.68rem; text-transform: uppercase; color: #86efac; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/></svg>
+          Autoridad Municipal a Cargo
         </div>
         
-        <div style="display: flex; align-items: center; gap: 0.85rem; background: rgba(255, 255, 255, 0.05); padding: 0.65rem 0.75rem; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <div style="display: flex; align-items: center; gap: 0.85rem; background: rgba(255, 255, 255, 0.06); padding: 0.7rem 0.85rem; border-radius: 12px; border: 1px solid rgba(141, 198, 63, 0.28);">
           <img 
-            src="assets/bibiana_rojas.png?v=2" 
+            src="/assets/bibiana_rojas.png?v=3" 
             alt="Bibiana Rojas" 
-            style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); flex-shrink: 0;" 
+            style="width: 52px; height: 52px; border-radius: 50%; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.45)); flex-shrink: 0;" 
           />
           <div style="min-width: 0; flex: 1;">
-            <div style="font-size: 0.92rem; font-weight: 800; color: #ffffff; line-height: 1.15; letter-spacing: -0.01em;">
+            <div style="font-size: 0.95rem; font-weight: 800; color: #ffffff; line-height: 1.15; letter-spacing: -0.01em;">
               Bibiana Rojas
             </div>
-            <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.25; margin-top: 2px;">
+            <div style="font-size: 0.72rem; color: #cbd5e1; line-height: 1.25; margin-top: 3px;">
               Secretaría de Desarrollo Social y Humano
             </div>
-            <div style="font-size: 0.68rem; color: #4ade80; font-weight: 700; margin-top: 1px;">
+            <div style="font-size: 0.68rem; color: #86efac; font-weight: 700; margin-top: 2px;">
               Municipalidad de Viale
             </div>
           </div>
