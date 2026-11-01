@@ -26,6 +26,7 @@ class Store {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
+        const parsed = JSON.parse(stored);
         const FOTOS_MAP = {
           'res-1': '/assets/residente_modelo.jpg',
           'res-2': '/assets/res-2_catalina.jpg',
@@ -42,6 +43,30 @@ class Store {
             if (FOTOS_MAP[r.id] && (!r.foto_url || r.foto_url !== FOTOS_MAP[r.id])) {
               r.foto_url = FOTOS_MAP[r.id];
               updated = true;
+            }
+            // Sincronizar campos PAMI Res. 284/05 si faltan en el cache
+            const initRes = INITIAL_RESIDENTES.find(ir => ir.id === r.id);
+            if (initRes) {
+              if (!r.medico_cabecera && initRes.medico_cabecera) {
+                r.medico_cabecera = initRes.medico_cabecera;
+                updated = true;
+              }
+              if ((!r.visitas_medico_cabecera || r.visitas_medico_cabecera.length === 0) && initRes.visitas_medico_cabecera) {
+                r.visitas_medico_cabecera = initRes.visitas_medico_cabecera;
+                updated = true;
+              }
+              if ((!r.referencias_contrarreferencias || r.referencias_contrarreferencias.length === 0) && initRes.referencias_contrarreferencias) {
+                r.referencias_contrarreferencias = initRes.referencias_contrarreferencias;
+                updated = true;
+              }
+              if ((!r.solicitudes_practicas_nivel1 || r.solicitudes_practicas_nivel1.length === 0) && initRes.solicitudes_practicas_nivel1) {
+                r.solicitudes_practicas_nivel1 = initRes.solicitudes_practicas_nivel1;
+                updated = true;
+              }
+            } else {
+              if (!r.visitas_medico_cabecera) r.visitas_medico_cabecera = [];
+              if (!r.referencias_contrarreferencias) r.referencias_contrarreferencias = [];
+              if (!r.solicitudes_practicas_nivel1) r.solicitudes_practicas_nivel1 = [];
             }
           });
           if (updated) {
@@ -134,7 +159,7 @@ class Store {
     return this.data.profesionales.find(p => p.id === this.currentProfessionalId) || this.data.profesionales[0];
   }
 
-  // --- Cálculos y Métricas Clave (VGI / PAI 100%) ---
+  // --- Cálculos y Métricas Clave (VGI / PAI 100% y PAMI Res. 284/05) ---
   getEstadisticas() {
     const totalResidentes = this.data.residentes.length;
     let vigentes = 0;
@@ -150,9 +175,19 @@ class Store {
     let pamiCount = 0;
     let iosperCount = 0;
 
+    // Métricas específicas PAMI Res. 284/05
+    let pamiVisitasAlDia = 0;
+    let pamiVisitasPendientes = 0;
+    const residentesVisitasAlerta = [];
+    let derivacionesActivas = 0;
+    let totalSolicitudesPracticas = 0;
+
+    const hoy = new Date().toISOString().slice(0, 10);
+
     this.data.residentes.forEach(r => {
       // Obra Social
-      if (r.obra_social === 'PAMI') pamiCount++;
+      const esPami = r.obra_social === 'PAMI';
+      if (esPami) pamiCount++;
       else if (r.obra_social === 'IOSPER') iosperCount++;
 
       // VGI Vigencia
@@ -171,10 +206,51 @@ class Store {
       } else {
         vencidas++;
       }
+
+      // Control Visitas Médico de Cabecera (Res. 284/05 - mensual obligatoria)
+      const visitas = r.visitas_medico_cabecera || [];
+      if (visitas.length > 0) {
+        const ultVisita = visitas[0];
+        const limite = ultVisita.proxima_visita_limite || ultVisita.fecha_hora.slice(0, 10);
+        // Verificar si la fecha límite ya expiró o si pasaron más de 30 días
+        const diasDiff = Math.round((new Date(hoy) - new Date(ultVisita.fecha_hora.slice(0, 10))) / (1000 * 60 * 60 * 24));
+        if (diasDiff <= 30) {
+          if (esPami) pamiVisitasAlDia++;
+        } else {
+          if (esPami) {
+            pamiVisitasPendientes++;
+            residentesVisitasAlerta.push({
+              ...r,
+              dias_sin_visita: diasDiff,
+              ultima_visita: ultVisita.fecha_hora.slice(0, 10)
+            });
+          }
+        }
+      } else {
+        if (esPami) {
+          pamiVisitasPendientes++;
+          residentesVisitasAlerta.push({
+            ...r,
+            dias_sin_visita: 999,
+            ultima_visita: 'Sin registro'
+          });
+        }
+      }
+
+      // Derivaciones activas
+      const refs = r.referencias_contrarreferencias || [];
+      refs.forEach(ref => {
+        if (ref.estado === 'EN_CURSO') derivacionesActivas++;
+      });
+
+      // Solicitudes de prácticas de I Nivel
+      const sols = r.solicitudes_practicas_nivel1 || [];
+      totalSolicitudesPracticas += sols.length;
     });
 
     const porcentajeVigentes = totalResidentes > 0 ? Math.round((vigentes / totalResidentes) * 100) : 0;
     const promedioBarthel = totalResidentes > 0 ? Math.round(totalBarthel / totalResidentes) : 0;
+    const porcentajeVisitasPami = pamiCount > 0 ? Math.round((pamiVisitasAlDia / pamiCount) * 100) : 100;
 
     return {
       totalResidentes,
@@ -189,6 +265,12 @@ class Store {
       depGrave,
       pamiCount,
       iosperCount,
+      pamiVisitasAlDia,
+      pamiVisitasPendientes,
+      porcentajeVisitasPami,
+      residentesVisitasAlerta,
+      derivacionesActivas,
+      totalSolicitudesPracticas,
       totalProfesionales: this.data.profesionales.filter(p => p.activo).length
     };
   }
@@ -246,6 +328,15 @@ class Store {
       valoraciones_especialidades: [],
       vgi_vigente: null,
       pai_vigente: null,
+      medico_cabecera: resData.medico_cabecera || {
+        nombre: "A Designar / UGL XIV",
+        matricula: "Pendiente",
+        ugl: "UGL XIV - Paraná",
+        frecuencia_visita_exigida: "Mensual obligatoria (Res. 284/05)"
+      },
+      visitas_medico_cabecera: [],
+      referencias_contrarreferencias: [],
+      solicitudes_practicas_nivel1: [],
       ...resData
     };
 
@@ -430,6 +521,124 @@ class Store {
     this.data.informes_profesionales.unshift(newInforme);
     this.notify();
     return newInforme;
+  }
+
+  // --- PAMI Res. 284/05: Visitas Mensuales Obligatorias ---
+  addVisitaMedicoCabecera(residenteId, visita) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res) return null;
+    if (!res.visitas_medico_cabecera) res.visitas_medico_cabecera = [];
+
+    const now = new Date();
+    const proxima = new Date();
+    proxima.setDate(proxima.getDate() + 30);
+
+    const newVisita = {
+      id: `visita-${Date.now()}`,
+      fecha_hora: visita.fecha_hora || now.toISOString().replace('T', ' ').slice(0, 16),
+      profesional_id: visita.profesional_id || this.currentProfessionalId,
+      medico_nombre: visita.medico_nombre || res.medico_cabecera?.nombre || "Médico de Cabecera PAMI",
+      medico_matricula: visita.medico_matricula || res.medico_cabecera?.matricula || "M.P. Entre Ríos",
+      diagnostico_cie10: visita.diagnostico_cie10 || "Z00.0 - Examen médico general",
+      motivo_visita: visita.motivo_visita || "Control mensual reglamentario Res. 284/05 INSSJP",
+      hallazgos_clinicos: visita.hallazgos_clinicos || "Examen físico sin alteraciones agudas.",
+      ajuste_farmacologico: visita.ajuste_farmacologico || "Se mantiene esquema terapéutico habitual.",
+      conducta_seguimiento: visita.conducta_seguimiento || "Próximo control programado a 30 días.",
+      proxima_visita_limite: visita.proxima_visita_limite || proxima.toISOString().slice(0, 10),
+      bloqueado: true
+    };
+
+    res.visitas_medico_cabecera.unshift(newVisita);
+    this.notify();
+    return newVisita;
+  }
+
+  // --- PAMI Res. 284/05: Referencia a Nivel II/III (Derivación) ---
+  addDerivacionNivel2(residenteId, derivacion) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res) return null;
+    if (!res.referencias_contrarreferencias) res.referencias_contrarreferencias = [];
+
+    const now = new Date();
+    const newDerivacion = {
+      id: `ref-${Date.now()}`,
+      fecha_derivacion: derivacion.fecha_derivacion || now.toISOString().replace('T', ' ').slice(0, 16),
+      efector_destino: derivacion.efector_destino || "Hospital Dr. Castilla Mira (Viale)",
+      nivel_atencion_destino: derivacion.nivel_atencion_destino || "II Nivel",
+      motivo_urgencia: derivacion.motivo_urgencia || "Descompensación aguda",
+      diagnostico_cie10: derivacion.diagnostico_cie10 || "R68.8 - Otros síntomas generales",
+      estado: "EN_CURSO",
+      traslado_ambulancia: derivacion.traslado_ambulancia || "Ambulancia de Traslado UGL XIV",
+      medico_derivante: derivacion.medico_derivante || "Médico de Guardia / Cabecera Hogar Madre Teresa",
+      matricula_derivante: derivacion.matricula_derivante || "M.P. Entre Ríos",
+      observaciones: derivacion.observaciones || "",
+      epicrisis: null
+    };
+
+    res.referencias_contrarreferencias.unshift(newDerivacion);
+    this.notify();
+    return newDerivacion;
+  }
+
+  // --- PAMI Res. 284/05: Contrarreferencia y Epicrisis Hospitalaria ---
+  registrarEpicrisisReingreso(residenteId, derivacionId, epicrisisData) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res || !res.referencias_contrarreferencias) return null;
+
+    const ref = res.referencias_contrarreferencias.find(d => d.id === derivacionId);
+    if (!ref) return null;
+
+    const now = new Date();
+    ref.estado = "CONTRARREFERIDO_CON_EPICRISIS";
+    ref.epicrisis = {
+      id: `epi-${Date.now()}`,
+      fecha_alta_hospitalaria: epicrisisData.fecha_alta_hospitalaria || now.toISOString().slice(0, 10),
+      efector_emisor: epicrisisData.efector_emisor || ref.efector_destino,
+      medico_tratante_hospital: epicrisisData.medico_tratante_hospital || "Servicio de Clínica Médica",
+      matricula_hospital: epicrisisData.matricula_hospital || "M.P. Entre Ríos",
+      diagnostico_ingreso_cie10: epicrisisData.diagnostico_ingreso_cie10 || ref.diagnostico_cie10,
+      diagnostico_egreso_cie10: epicrisisData.diagnostico_egreso_cie10 || "Z54.0 - Convalecencia",
+      resumen_tratamiento: epicrisisData.resumen_tratamiento || "Internación y estabilización clínica.",
+      indicaciones_reingreso: epicrisisData.indicaciones_reingreso || "Reposo relativo y control de signos vitales.",
+      ajustes_medicacion: epicrisisData.ajustes_medicacion || "Continuar medicación según indicación de alta.",
+      dispara_revision_vgi: epicrisisData.dispara_revision_vgi !== false,
+      bloqueado: true
+    };
+
+    // Regla Inquebrantable 2: Cambio clínico agudo exige revisión inmediata de VGI/PAI
+    if (ref.epicrisis.dispara_revision_vgi && res.vgi_vigente) {
+      res.vgi_vigente.estado_vigencia = "REQUERIMIENTO_POR_CAMBIO_CLINICO";
+      res.vgi_vigente.motivo_alerta = `Reingreso hospitalario con epicrisis (${ref.epicrisis.diagnostico_egreso_cie10}). Exige nueva VGI.`;
+    }
+
+    this.notify();
+    return ref;
+  }
+
+  // --- PAMI Res. 284/05: Solicitud de Prácticas de I Nivel Domiciliarias ---
+  addSolicitudPracticaNivel1(residenteId, solicitud) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res) return null;
+    if (!res.solicitudes_practicas_nivel1) res.solicitudes_practicas_nivel1 = [];
+
+    const now = new Date();
+    const newSolicitud = {
+      id: `prac-${Date.now()}`,
+      fecha_solicitud: solicitud.fecha_solicitud || now.toISOString().slice(0, 10),
+      tipo_practica: solicitud.tipo_practica || "Laboratorio Bioquímico (Extracción en Cama)",
+      codigo_modulo: solicitud.codigo_modulo || "MÓDULO I - Extracción Domiciliaria Res. 284/05",
+      justificacion_domiciliaria: solicitud.justificacion_domiciliaria || "Paciente no deambula / postrado en residencia.",
+      diagnostico_cie10: solicitud.diagnostico_cie10 || "R54 - Senilidad y fragilidad del adulto mayor",
+      profesional_solicitante: solicitud.profesional_solicitante || "Médico de Cabecera PAMI",
+      matricula_solicitante: solicitud.matricula_solicitante || "M.P. Entre Ríos",
+      estado: solicitud.estado || "SOLICITADA",
+      resultado_informe: null,
+      bloqueado: true
+    };
+
+    res.solicitudes_practicas_nivel1.unshift(newSolicitud);
+    this.notify();
+    return newSolicitud;
   }
 
   deleteInformeProfesional(id) {

@@ -5,6 +5,7 @@
 
 import { store } from '../state/store.js';
 import { openDossierMunicipalModal } from '../components/DossierMunicipalModal.js';
+import { openRegistrarVisitaModal } from '../components/RegistrarVisitaModal.js';
 
 export function renderDashboardView(container) {
   const stats = store.getEstadisticas();
@@ -104,6 +105,74 @@ export function renderDashboardView(container) {
             </span>
           </div>
         </div>
+      </div>
+
+      <!-- Widget: Cumplimiento de Visitas Médicas Mensuales Obligatorias PAMI (Res. 284/05) -->
+      <div class="card" style="margin-bottom: 2rem; border-left: 5px solid ${stats.porcentajeVisitasPami === 100 ? '#009640' : '#dc2626'}; background: #ffffff;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.85rem;">
+            <div style="background: ${stats.porcentajeVisitasPami === 100 ? '#dcfce7' : '#fee2e2'}; color: ${stats.porcentajeVisitasPami === 100 ? '#16a34a' : '#dc2626'}; width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem;">
+              🏛️
+            </div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; margin: 0;">
+                  Visitas Mensuales Médico de Cabecera (Res. 284/05 INSSJP - PAMI)
+                </h3>
+                <span class="badge ${stats.porcentajeVisitasPami === 100 ? 'badge-vigente' : 'badge-vencida'}">
+                  ${stats.porcentajeVisitasPami}% AL DÍA (${stats.pamiVisitasAlDia}/${stats.pamiCount})
+                </span>
+                ${stats.derivacionesActivas > 0 ? `
+                  <span class="badge badge-advertencia">
+                    🚑 ${stats.derivacionesActivas} Derivación Activa
+                  </span>
+                ` : ''}
+              </div>
+              <p style="font-size: 0.82rem; color: #64748b; margin: 0.25rem 0 0;">
+                Exigencia mensual reglamentaria (Pág. 108 Res. 284/05) · UGL XIV Paraná · Cobertura I Nivel Domiciliaria
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <button id="btn-ver-afiliados-pami" class="btn btn-secondary btn-sm" style="font-weight: 600;">
+              Ir a Legajos PAMI
+            </button>
+          </div>
+        </div>
+
+        ${stats.residentesVisitasAlerta.length > 0 ? `
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; margin-top: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; color: #991b1b; font-weight: 700; font-size: 0.88rem;">
+              <span>⚠️ Atención: Se detectaron ${stats.residentesVisitasAlerta.length} residente(s) PAMI con visita mensual vencida (> 30 días):</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              ${stats.residentesVisitasAlerta.map(r => `
+                <div style="background: white; border: 1px solid #fca5a5; border-radius: 6px; padding: 0.65rem 0.85rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                  <div>
+                    <strong style="color: #0f172a;">${r.nombre_completo}</strong> (${r.numero_legajo})
+                    <span style="color: #64748b; font-size: 0.8rem; margin-left: 0.5rem;">${r.estado_habitacional}</span>
+                    <span style="color: #dc2626; font-size: 0.78rem; font-weight: 700; margin-left: 0.5rem;">
+                      ${r.dias_sin_visita === 999 ? 'Sin visitas previas' : `Vencida hace ${r.dias_sin_visita} días (Últ: ${r.ultima_visita})`}
+                    </span>
+                  </div>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-primary btn-sm btn-registrar-visita-dash" data-residente-id="${r.id}" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                      + Asentar Visita
+                    </button>
+                    <button class="btn btn-secondary btn-sm btn-ver-legajo-pami-dash" data-residente-id="${r.id}" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                      Ver Legajo
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : `
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 0.75rem 1rem; color: #166534; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+            <span>✓</span> Todos los afiliados PAMI cuentan con su visita médica institucional mensual al día.
+          </div>
+        `}
       </div>
 
       <!-- Métricas Clave en Cuadrícula -->
@@ -267,6 +336,32 @@ export function renderDashboardView(container) {
     btn.onclick = () => {
       const resId = btn.getAttribute('data-residente-id');
       store.setView('vgi_pai', resId);
+    };
+  });
+
+  // Listeners PAMI Res. 284/05
+  const btnVerPami = document.getElementById('btn-ver-afiliados-pami');
+  if (btnVerPami) {
+    btnVerPami.onclick = () => {
+      const primerPami = residentes.find(r => r.obra_social === 'PAMI');
+      store.setView('legajos', primerPami ? primerPami.id : null);
+    };
+  }
+
+  container.querySelectorAll('.btn-registrar-visita-dash').forEach(btn => {
+    btn.onclick = () => {
+      const resId = btn.getAttribute('data-residente-id');
+      const res = residentes.find(r => r.id === resId);
+      if (res) {
+        openRegistrarVisitaModal(res, () => renderDashboardView(container));
+      }
+    };
+  });
+
+  container.querySelectorAll('.btn-ver-legajo-pami-dash').forEach(btn => {
+    btn.onclick = () => {
+      const resId = btn.getAttribute('data-residente-id');
+      store.setView('legajos', resId);
     };
   });
 }

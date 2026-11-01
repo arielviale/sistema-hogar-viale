@@ -106,6 +106,62 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: true,
     continente: "Incontinencia urinaria ocasional",
     movilidad: "Deambula con bastón trípode",
+    medico_cabecera: {
+      nombre_completo: "Dra. Silvina Andrea Rossi",
+      matricula_provincial: "M.P. 5421 - Entre Ríos",
+      especialidad: "Geriatría / Medicina de Cabecera",
+      ugl: "UGL XIV - Paraná (Agencia Viale)",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-101",
+        fecha_hora: "2026-10-18 10:00",
+        profesional_id: "prof-1",
+        medico_nombre: "Dra. Silvina Andrea Rossi",
+        matricula: "M.P. 5421 - Entre Ríos",
+        tipo_visita: "Visita Mensual Institucional Obligatoria (Res. 284/05)",
+        motivo: "Control evolutivo mensual regular en residencia de adultos mayores",
+        diagnostico_cie10: "I10 - Hipertensión esencial (primaria)",
+        hallazgos: "Paciente lúcido, afebril, hemodinámicamente estable. TA: 125/80 mmHg. Auscultación cardiorrespiratoria sin agregados. Buena tolerancia al tratamiento.",
+        conducta: "Continuar con enalapril 10mg y amlodipina 5mg. Próximo control programado en 30 días.",
+        proxima_visita_limite: "2026-11-18",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [
+      {
+        id: "ref-101",
+        tipo: "DERIVACION_INTERNACION",
+        fecha_derivacion: "2026-08-10 14:30",
+        efector_destino: "Hospital San Roque de Viale (Nivel II)",
+        motivo_derivacion: "Cuadro febril agudo con tos productiva y desaturación (89%). Se deriva para antibioticoterapia endovenosa.",
+        diagnostico_presuntivo_cie10: "J18.9 - Neumonía, no especificada",
+        medio_traslado: "Ambulancia de Emergencia con Médico",
+        profesional_derivante_id: "prof-1",
+        estado: "CONTRARREFERIDO_CON_EPICRISIS",
+        fecha_reingreso: "2026-08-18 11:00",
+        epicrisis: {
+          diagnostico_definitivo_cie10: "J15.9 - Neumonía bacteriana, no especificada",
+          resumen_alta: "Evolución favorable con Ceftriaxona EV por 7 días. Afebril desde el 3er día de internación. Se otorga alta médica compensado.",
+          indicaciones_reingreso: "Control de signos vitales cada 12 hs por enfermería. Kinesioterapia respiratoria. Reposo relativo 48 hs.",
+          profesional_receptor_id: "prof-1",
+          dispara_revision_vgi: false
+        }
+      }
+    ],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-101",
+        fecha_solicitud: "2026-10-18",
+        tipo_practica: "LABORATORIO_DOMICILIARIO",
+        codigo_menu_pami: "660475 - Hemograma completo / 660481 - Hepatograma / 660192 - Creatinina / 660412 - Glucemia",
+        diagnostico_cie10: "I10 - Hipertensión esencial (primaria)",
+        justificacion_domiciliaria: "Residente de 88 años con gonartrosis bilateral y marcha asistida. Se solicita extracción de muestras biológicas en la residencia conforme al Menú de I Nivel de la Res. 284/05 PAMI.",
+        profesional_solicitante_id: "prof-1",
+        estado: "SOLICITADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "HTA diagnosticada hace 25 años. Artritis degenerativa en miembros inferiores. Sin antecedentes de ACV.",
       alergias: "Penicilina y derivados.",
@@ -229,6 +285,42 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: true,
     continente: "Incontinente (uso de pañal)",
     movilidad: "Silla de ruedas para traslados medios, transferencias con asistencia de 1 persona",
+    medico_cabecera: {
+      nombre_completo: "Dra. Silvina Andrea Rossi",
+      matricula_provincial: "M.P. 5421 - Entre Ríos",
+      especialidad: "Geriatría / Medicina de Cabecera",
+      ugl: "IOSPER Paraná Campaña",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-201",
+        fecha_hora: "2026-10-14 11:30",
+        profesional_id: "prof-1",
+        medico_nombre: "Dra. Silvina Andrea Rossi",
+        matricula: "M.P. 5421 - Entre Ríos",
+        tipo_visita: "Visita Mensual Institucional Obligatoria (Res. 284/05)",
+        motivo: "Control evolutivo mensual de demencia avanzada y soporte nutricional",
+        diagnostico_cie10: "G30.9 - Enfermedad de Alzheimer, no especificada",
+        hallazgos: "Residente tranquila, conectada parcialmente. Sin lesiones cutáneas activas en sacro ni talones. Piel hidratada.",
+        conducta: "Mantener memantina y pautas de cambios posturales de enfermería.",
+        proxima_visita_limite: "2026-11-14",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-201",
+        fecha_solicitud: "2026-10-14",
+        tipo_practica: "FISIOKINESIOTERAPIA",
+        codigo_menu_pami: "250106 - Kinesioterapia o fisiatría a domicilio / 250103 - Terapia ocupacional",
+        diagnostico_cie10: "G30.9 - Enfermedad de Alzheimer, no especificada",
+        justificacion_domiciliaria: "Movilizaciones pasivo-asistidas para prevención de retracciones y rigidez articular en silla de ruedas.",
+        profesional_solicitante_id: "prof-1",
+        estado: "SOLICITADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "Alzheimer de 6 años de evolución. Múltiples internaciones previas antes de su ingreso institucional.",
       alergias: "Sin alergias medicamentosas conocidas.",
@@ -317,6 +409,42 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: true,
     continente: "Continente",
     movilidad: "Autoválido, deambula sin asistencia técnica",
+    medico_cabecera: {
+      nombre_completo: "Dra. Silvina Andrea Rossi",
+      matricula_provincial: "M.P. 5421 - Entre Ríos",
+      especialidad: "Geriatría / Medicina de Cabecera",
+      ugl: "UGL XIV - Paraná (Agencia Viale)",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-301",
+        fecha_hora: "2026-09-12 10:15",
+        profesional_id: "prof-1",
+        medico_nombre: "Dra. Silvina Andrea Rossi",
+        matricula: "M.P. 5421 - Entre Ríos",
+        tipo_visita: "Visita Mensual Institucional Obligatoria (Res. 284/05)",
+        motivo: "Control periódico de glucemias y espirometría",
+        diagnostico_cie10: "E11.9 - Diabetes mellitus tipo 2 sin mención de complicación",
+        hallazgos: "Buena tolerancia al plan nutricional y a la metformina. Sin signos de dificultad respiratoria en reposo.",
+        conducta: "Control rutinario. Próximo control programado en 30 días.",
+        proxima_visita_limite: "2026-10-12",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-301",
+        fecha_solicitud: "2026-09-15",
+        tipo_practica: "LABORATORIO_DOMICILIARIO",
+        codigo_menu_pami: "660412 - Glucemia / 661070 - Hemoglobina glicosilada (HbA1c) / 660711 - Orina completa",
+        diagnostico_cie10: "E11.9 - Diabetes mellitus tipo 2 sin mención de complicación",
+        justificacion_domiciliaria: "Monitoreo metabólico institucional en Hogar Madre Teresa para evitar descompensaciones hiperglucémicas.",
+        profesional_solicitante_id: "prof-1",
+        estado: "COMPLETADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "Ex tabaquista. Diabetes tratada con antidiabéticos orales. Buen control glucémico.",
       alergias: "Ninguna conocida.",
@@ -395,6 +523,42 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: true,
     continente: "Incontinencia urinaria",
     movilidad: "Requiere silla de ruedas y asistencia máxima",
+    medico_cabecera: {
+      nombre_completo: "Dra. Beatriz Elena Gómez",
+      matricula_provincial: "M.P. 3840 - Entre Ríos",
+      especialidad: "Clínica Médica / Dirección",
+      ugl: "UGL XIV - Paraná (Agencia Viale)",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-401",
+        fecha_hora: "2026-10-20 16:30",
+        profesional_id: "prof-8",
+        medico_nombre: "Dra. Beatriz Elena Gómez",
+        matricula: "M.P. 3840 - Entre Ríos",
+        tipo_visita: "Visita Mensual Institucional Obligatoria (Res. 284/05)",
+        motivo: "Evaluación mensual interdisciplinaria y ajuste de antidepresivo",
+        diagnostico_cie10: "I69.3 - Secuelas de infarto cerebral (ACV)",
+        hallazgos: "Piel íntegra, tono espástico en miembro superior izquierdo. Ánimo reactivo. Buen apetito.",
+        conducta: "Mantener sertralina 50mg. Continuar plan kinésico y estimulación del lenguaje.",
+        proxima_visita_limite: "2026-11-20",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-401",
+        fecha_solicitud: "2026-10-10",
+        tipo_practica: "FISIOKINESIOTERAPIA",
+        codigo_menu_pami: "250106 - Kinesioterapia motriz en domicilio / 250104 - Rehabilitación del lenguaje",
+        diagnostico_cie10: "I69.3 - Secuelas de infarto cerebral (ACV)",
+        justificacion_domiciliaria: "Secuela neurológica invalidante con hemiparesia. Se requiere terapia física y fonoaudiológica intensiva en la institución.",
+        profesional_solicitante_id: "prof-1",
+        estado: "SOLICITADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "ACV hace 18 meses. En tratamiento neurorehabilitador.",
       alergias: "Sin alergias declaradas.",
@@ -474,6 +638,42 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: true,
     continente: "Continente",
     movilidad: "Deambula con andador de 4 ruedas",
+    medico_cabecera: {
+      nombre_completo: "Dra. Silvina Andrea Rossi",
+      matricula_provincial: "M.P. 5421 - Entre Ríos",
+      especialidad: "Geriatría / Medicina Interna",
+      ugl: "IOSPER Paraná Campaña",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-501",
+        fecha_hora: "2026-10-19 11:00",
+        profesional_id: "prof-1",
+        medico_nombre: "Dra. Silvina Andrea Rossi",
+        matricula: "M.P. 5421 - Entre Ríos",
+        tipo_visita: "Visita Programada de Seguimiento / Ajuste Terapéutico",
+        motivo: "Control de anticoagulación oral por fibrilación auricular crónica",
+        diagnostico_cie10: "I48 - Fibrilación y aleteo auricular",
+        hallazgos: "Laboratorio de RIN en 2.4 (dentro de rango terapéutico 2.0-3.0). Sin sangrados ni hematomas espontáneos.",
+        conducta: "Mantener Acenocumarol según esquema. Próximo control hematológico en 30 días.",
+        proxima_visita_limite: "2026-11-19",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-501",
+        fecha_solicitud: "2026-10-15",
+        tipo_practica: "LABORATORIO_DOMICILIARIO",
+        codigo_menu_pami: "660771 - Tiempo de protrombina / RIN / 660192 - Creatinina",
+        diagnostico_cie10: "I48 - Fibrilación y aleteo auricular",
+        justificacion_domiciliaria: "Control de coagulograma mensual de paciente con cardiopatía en residencia geriátrica.",
+        profesional_solicitante_id: "prof-1",
+        estado: "COMPLETADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "Anticoagulado por FA crónica. Control mensual de RIN.",
       alergias: "Ninguna conocida.",
@@ -552,6 +752,62 @@ export const INITIAL_RESIDENTES = [
     polifarmacia: false,
     continente: "Incontinencia urinaria",
     movilidad: "Deambula asistida por personal",
+    medico_cabecera: {
+      nombre_completo: "Dra. Silvina Andrea Rossi",
+      matricula_provincial: "M.P. 5421 - Entre Ríos",
+      especialidad: "Geriatría / Medicina de Cabecera",
+      ugl: "UGL XIV - Paraná (Agencia Viale)",
+      telefono: "0343-4920112"
+    },
+    visitas_medico_cabecera: [
+      {
+        id: "vis-601",
+        fecha_hora: "2026-10-22 10:30",
+        profesional_id: "prof-1",
+        medico_nombre: "Dra. Silvina Andrea Rossi",
+        matricula: "M.P. 5421 - Entre Ríos",
+        tipo_visita: "Visita Mensual Institucional Obligatoria (Res. 284/05)",
+        motivo: "Control evolutivo mensual y seguimiento posoperatorio de cadera",
+        diagnostico_cie10: "S72.0 - Fractura del cuello de fémur (cadera)",
+        hallazgos: "Herida quirúrgica de cadera izquierda cerrada y limpia. Tolera bipedestación con asistencia de 2 enfermeros.",
+        conducta: "Mantener anticoagulación profiláctica y continuar plan kinésico en habitación.",
+        proxima_visita_limite: "2026-11-22",
+        bloqueado: true
+      }
+    ],
+    referencias_contrarreferencias: [
+      {
+        id: "ref-601",
+        tipo: "DERIVACION_INTERNACION",
+        fecha_derivacion: "2026-09-02 18:30",
+        efector_destino: "Hospital San Martín de Paraná (Nivel III)",
+        motivo_derivacion: "Caída en habitación con rotación externa dolorosa de miembro inferior izquierdo. Se sospecha fractura de cadera.",
+        diagnostico_presuntivo_cie10: "S72.0 - Fractura del cuello de fémur (cadera)",
+        medio_traslado: "Ambulancia de Emergencia con Médico",
+        profesional_derivante_id: "prof-1",
+        estado: "CONTRARREFERIDO_CON_EPICRISIS",
+        fecha_reingreso: "2026-09-15 14:00",
+        epicrisis: {
+          diagnostico_definitivo_cie10: "S72.0 - Fractura del cuello de fémur (cadera)",
+          resumen_alta: "Se efectuó artroplastia parcial de cadera izquierda con prótesis bipolar. Buena tolerancia quirúrgica. Criterio de alta médica cumplido.",
+          indicaciones_reingreso: "Enoxaparina 40mg SC cada 24 hs por 20 días más. Cuidados de herida. Kinesiología motora sin carga total.",
+          profesional_receptor_id: "prof-1",
+          dispara_revision_vgi: true
+        }
+      }
+    ],
+    solicitudes_practicas_nivel1: [
+      {
+        id: "sol-601",
+        fecha_solicitud: "2026-09-18",
+        tipo_practica: "RX_PORTATIL",
+        codigo_menu_pami: "340211 - Radiología de cadera y fémur portátil en cama",
+        diagnostico_cie10: "S72.0 - Fractura del cuello de fémur (cadera)",
+        justificacion_domiciliaria: "Control radiológico de control a los 30 días de reemplazo de cadera. Paciente imposibilitada de trasladarse en transporte regular.",
+        profesional_solicitante_id: "prof-1",
+        estado: "SOLICITADO"
+      }
+    ],
     historia_clinica: {
       antecedentes: "Varios infartos lacunares en TAC cerebral previa.",
       alergias: "Ninguna conocida.",

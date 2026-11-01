@@ -6,6 +6,10 @@
 import { store } from '../state/store.js';
 import { renderBloqueFirmaSello } from '../components/BloqueFirmaSello.js';
 import { openPrintOfficialModal } from '../components/PrintOfficialModal.js';
+import { openRegistrarVisitaModal } from '../components/RegistrarVisitaModal.js';
+import { openRegistrarDerivacionModal } from '../components/RegistrarDerivacionModal.js';
+import { openSolicitarPracticaModal } from '../components/SolicitarPracticaModal.js';
+import { openPrintPracticaDomiciliariaModal } from '../components/PrintPracticaDomiciliariaModal.js';
 
 export function renderLegajosView(container) {
   const residentes = store.data.residentes;
@@ -31,6 +35,35 @@ export function renderLegajosView(container) {
 
   // Residente actualmente enfocado
   const selectedRes = residentes.find(r => r.id === store.selectedResidentId) || residentes[0];
+
+  // Cálculos PAMI Res. 284/05 para el residente seleccionado
+  const visitas = selectedRes.visitas_medico_cabecera || [];
+  const referencias = selectedRes.referencias_contrarreferencias || [];
+  const solicitudes = selectedRes.solicitudes_practicas_nivel1 || [];
+  const medico = selectedRes.medico_cabecera || {
+    nombre: "A Designar / UGL XIV",
+    matricula: "Pendiente",
+    ugl: "UGL XIV - Paraná",
+    frecuencia_visita_exigida: "Mensual obligatoria (Res. 284/05)"
+  };
+
+  const hoyStr = new Date().toISOString().slice(0, 10);
+  let diasDesdeUltimaVisita = null;
+  let visitaVencida = false;
+  let fechaUltimaVisita = 'Sin visitas registradas';
+  let fechaLimiteVisita = null;
+
+  if (visitas.length > 0) {
+    const ult = visitas[0];
+    fechaUltimaVisita = ult.fecha_hora;
+    fechaLimiteVisita = ult.proxima_visita_limite;
+    diasDesdeUltimaVisita = Math.round((new Date(hoyStr) - new Date(ult.fecha_hora.slice(0, 10))) / (1000 * 60 * 60 * 24));
+    if (diasDesdeUltimaVisita > 30) {
+      visitaVencida = true;
+    }
+  } else {
+    visitaVencida = true;
+  }
 
   container.innerHTML = `
     <div class="animate-fade-in">
@@ -153,6 +186,9 @@ export function renderLegajosView(container) {
             </button>
             <button class="tab-btn" data-tab="especialidades">
               🧩 4. Valoraciones Interdisciplinarias
+            </button>
+            <button class="tab-btn" data-tab="pami">
+              🏛️ 5. Médico de Cabecera y PAMI (Res. 284/05)
             </button>
           </div>
         </div>
@@ -431,6 +467,247 @@ export function renderLegajosView(container) {
 
           </div>
 
+          <!-- PESTAÑA 5: MÉDICO DE CABECERA Y PAMI (RES. 284/05) -->
+          <div id="tab-content-pami" class="tab-pane animate-fade-in" style="display: none; margin-top: 1rem;">
+            
+            <!-- Resumen de Médico de Cabecera y Estado de Visita Mensual Obligatoria -->
+            <div style="background: ${visitaVencida ? '#fef2f2' : '#f0fdf4'}; border: 1px solid ${visitaVencida ? '#fecaca' : '#bbf7d0'}; border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 48px; height: 48px; border-radius: 10px; background: ${visitaVencida ? '#fee2e2' : '#dcfce7'}; color: ${visitaVencida ? '#dc2626' : '#16a34a'}; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                  ${visitaVencida ? '⚠️' : '🩺'}
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <h3 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin: 0;">
+                      Médico de Cabecera: ${medico.nombre}
+                    </h3>
+                    <span class="badge ${visitaVencida ? 'badge-vencida' : 'badge-vigente'}">
+                      ${visitaVencida ? '🔴 VISITA MENSUAL VENCIDA (> 30 DÍAS)' : '🟢 VISITA MENSUAL AL DÍA'}
+                    </span>
+                  </div>
+                  <div style="font-size: 0.82rem; color: #475569; margin-top: 0.25rem;">
+                    Matrícula: <strong>${medico.matricula}</strong> · Jurisdicción: <strong>${medico.ugl}</strong> · Régimen: <strong>Res. 284/2005 INSSJP Pág. 108</strong>
+                  </div>
+                  <div style="font-size: 0.78rem; color: ${visitaVencida ? '#b91c1c' : '#15803d'}; margin-top: 0.2rem; font-weight: 600;">
+                    ${visitaVencida ? `⚠️ Alerta Reglamentaria: Han transcurrido ${diasDesdeUltimaVisita !== null ? diasDesdeUltimaVisita + ' días' : 'más de 30 días'} sin visita mensual asentada en el Legajo. Exigible bajo apercibimiento contractual.` : `✓ Última visita: ${fechaUltimaVisita.slice(0, 10)} · Próxima visita exigida antes del: ${fechaLimiteVisita || 'en 30 días'}`}
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button id="btn-registrar-visita-cabecera" class="btn btn-primary" style="font-size: 0.85rem; padding: 0.6rem 1rem;">
+                  + Registrar Visita Mensual
+                </button>
+              </div>
+            </div>
+
+            <!-- Sección 1: Visitas Mensuales Asentadas -->
+            <div style="margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <div>
+                  <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    1. Visitas Médicas Mensuales Obligatorias (Res. 284/05 PAMI)
+                  </h4>
+                  <p style="font-size: 0.8rem; color: #64748b; margin: 0;">
+                    Control asistencial mensual en residencia gerontológica con codificación CIE-10 y firma/sello profesional
+                  </p>
+                </div>
+              </div>
+
+              ${visitas.length === 0 ? `
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.5rem; text-align: center; color: #64748b; font-size: 0.88rem;">
+                  No hay visitas médicas del Médico de Cabecera registradas para este afiliado.
+                </div>
+              ` : `
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                  ${visitas.map(v => {
+                    const prof = profesionales.find(p => p.id === v.profesional_id) || {
+                      nombre_completo: v.medico_nombre,
+                      profesion: "Médico de Cabecera",
+                      matricula: v.medico_matricula
+                    };
+                    return `
+                      <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                          <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="badge badge-vigente" style="font-size: 0.75rem;">VISITA INSTITUCIONAL MENSUAL</span>
+                            <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">${v.fecha_hora} hs</span>
+                          </div>
+                          <div style="font-size: 0.78rem; color: #64748b;">
+                            Próxima fecha límite: <strong style="color: #007030;">${v.proxima_visita_limite}</strong>
+                          </div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
+                          <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: #007030; text-transform: uppercase;">Diagnóstico Principal (CIE-10):</div>
+                            <div style="font-weight: 700; color: #0f172a; margin-top: 2px;">${v.diagnostico_cie10}</div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;"><strong>Motivo:</strong> ${v.motivo_visita}</div>
+                          </div>
+                          <div style="background: #f8fafc; padding: 0.75rem; border-radius: 6px;">
+                            <div style="font-size: 0.75rem; font-weight: 700; color: #007030; text-transform: uppercase;">Ajustes Farmacológicos y Conducta:</div>
+                            <div style="color: #334155; margin-top: 2px;">${v.ajuste_farmacologico}</div>
+                            <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;"><strong>Plan:</strong> ${v.conducta_seguimiento}</div>
+                          </div>
+                        </div>
+
+                        <div style="background: #fff; border: 1px dashed #e2e8f0; border-radius: 6px; padding: 0.75rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
+                          <strong style="color: #475569;">Hallazgos Clínicos / Examen Físico:</strong>
+                          <p style="margin: 0.25rem 0 0; color: #1e293b; line-height: 1.5;">${v.hallazgos_clinicos}</p>
+                        </div>
+
+                        ${renderBloqueFirmaSello(prof, v.fecha_hora, true, v.id)}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+
+            <!-- Sección 2: Referencias, Traslados y Contrarreferencias (Nivel II/III) -->
+            <div style="margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    2. Sistema de Referencia, Contrarreferencia y Epicrisis (Niveles I ➔ II / III)
+                  </h4>
+                  <p style="font-size: 0.8rem; color: #64748b; margin: 0;">
+                    Derivaciones hospitalarias, traslados sanitarios y reingresos con epicrisis reglamentaria (Res. 284/05 Pág. 110)
+                  </p>
+                </div>
+                <button id="btn-nueva-derivacion-hosp" class="btn btn-secondary btn-sm" style="border-color: #dc2626; color: #dc2626;">
+                  🚑 Nueva Derivación Hospitalaria
+                </button>
+              </div>
+
+              ${referencias.length === 0 ? `
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; text-align: center; color: #64748b; font-size: 0.85rem;">
+                  Sin derivaciones hospitalarias registradas para este residente.
+                </div>
+              ` : `
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                  ${referencias.map(ref => {
+                    const esEnCurso = ref.estado === 'EN_CURSO';
+                    return `
+                      <div style="background: white; border: 1px solid ${esEnCurso ? '#fca5a5' : '#cbd5e1'}; border-radius: 10px; padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                          <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <span class="badge ${esEnCurso ? 'badge-advertencia' : 'badge-vigente'}">
+                              ${esEnCurso ? '🚑 DERIVACIÓN EN CURSO (INTERNACIÓN EXTERNA)' : '✅ REINGRESADO CON EPICRISIS'}
+                            </span>
+                            <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">${ref.fecha_derivacion} hs</span>
+                          </div>
+                          
+                          ${esEnCurso ? `
+                            <button class="btn btn-primary btn-sm btn-registrar-epicrisis-item" data-ref-id="${ref.id}" style="font-size: 0.75rem; padding: 0.35rem 0.75rem; background: #2563eb; border-color: #2563eb;">
+                              📋 Registrar Contrarreferencia / Epicrisis
+                            </button>
+                          ` : ''}
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.85rem;">
+                          <div>
+                            <div><strong>Efector de Destino:</strong> ${ref.efector_destino} (${ref.nivel_atencion_destino})</div>
+                            <div style="margin-top: 3px;"><strong>Diagnóstico CIE-10:</strong> <span style="font-weight: 700; color: #b91c1c;">${ref.diagnostico_cie10}</span></div>
+                            <div style="margin-top: 3px;"><strong>Motivo Urgencia:</strong> ${ref.motivo_urgencia}</div>
+                          </div>
+                          <div>
+                            <div><strong>Traslado Sanitario:</strong> ${ref.traslado_ambulancia}</div>
+                            <div style="margin-top: 3px;"><strong>Médico Derivante:</strong> ${ref.medico_derivante} (${ref.matricula_derivante})</div>
+                            ${ref.observaciones ? `<div style="margin-top: 3px; font-size: 0.78rem; color: #64748b;"><strong>Obs:</strong> ${ref.observaciones}</div>` : ''}
+                          </div>
+                        </div>
+
+                        ${ref.epicrisis ? `
+                          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; margin-top: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                              <div style="font-weight: 800; color: #1e40af; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+                                <span>📋 Epicrisis Hospitalaria de Egreso</span>
+                                <span class="badge badge-neutral" style="font-size: 0.7rem;">Fecha Alta: ${ref.epicrisis.fecha_alta_hospitalaria}</span>
+                              </div>
+                              <div style="font-size: 0.75rem; color: #3b82f6;">
+                                ${ref.epicrisis.efector_emisor} · ${ref.epicrisis.medico_tratante_hospital} (${ref.epicrisis.matricula_hospital})
+                              </div>
+                            </div>
+
+                            <div style="font-size: 0.82rem; color: #1e293b; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                              <div>
+                                <div><strong>Diagnóstico de Egreso (CIE-10):</strong> <span style="font-weight: 700; color: #1e40af;">${ref.epicrisis.diagnostico_egreso_cie10}</span></div>
+                                <div style="margin-top: 4px;"><strong>Tratamiento Efectuado:</strong> ${ref.epicrisis.resumen_tratamiento}</div>
+                              </div>
+                              <div>
+                                <div><strong>Ajustes Farmacológicos:</strong> ${ref.epicrisis.ajustes_medicacion}</div>
+                                <div style="margin-top: 4px;"><strong>Indicaciones de Reingreso:</strong> ${ref.epicrisis.indicaciones_reingreso}</div>
+                              </div>
+                            </div>
+
+                            ${ref.epicrisis.dispara_revision_vgi ? `
+                              <div style="margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed #93c5fd; font-size: 0.76rem; color: #b45309; font-weight: 700; display: flex; align-items: center; gap: 0.4rem;">
+                                <span>⚠️ Conforme a la Regla 2: El reingreso hospitalario disparó la exigencia de nueva VGI y actualización de PAI por cambio clínico.</span>
+                              </div>
+                            ` : ''}
+                          </div>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+
+            <!-- Sección 3: Prácticas de I Nivel Domiciliarias -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <h4 style="font-size: 1rem; font-weight: 800; color: #0f172a; margin: 0;">
+                    3. Prácticas y Diagnóstico de I Nivel Domiciliarias (Res. 284/05 Págs. 112 y 124)
+                  </h4>
+                  <p style="font-size: 0.8rem; color: #64748b; margin: 0;">
+                    Extracción de sangre en cama, radiología y ecografía móvil, kinesiología domiciliaria con prescripción y membrete oficial
+                  </p>
+                </div>
+                <button id="btn-solicitar-practica-dom" class="btn btn-secondary btn-sm" style="border-color: #059669; color: #059669;">
+                  🧪 + Solicitar Práctica en Residencia
+                </button>
+              </div>
+
+              ${solicitudes.length === 0 ? `
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 1.25rem; text-align: center; color: #64748b; font-size: 0.85rem;">
+                  Sin solicitudes de prácticas domiciliarias emitidas.
+                </div>
+              ` : `
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  ${solicitudes.map(s => `
+                    <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                      <div style="flex: 1; min-width: 250px;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                          <span style="font-weight: 800; color: #0f172a; font-size: 0.9rem;">${s.tipo_practica}</span>
+                          <span class="badge badge-neutral" style="font-size: 0.7rem;">${s.codigo_modulo}</span>
+                          <span class="badge badge-vigente" style="font-size: 0.7rem;">${s.estado}</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #475569; margin-top: 0.35rem;">
+                          Fecha: <strong>${s.fecha_solicitud}</strong> · CIE-10: <strong style="color: #007030;">${s.diagnostico_cie10}</strong>
+                        </div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.2rem;">
+                          Justificación: ${s.justificacion_domiciliaria} · Médico: ${s.profesional_solicitante} (${s.matricula_solicitante})
+                        </div>
+                      </div>
+
+                      <div>
+                        <button class="btn btn-secondary btn-sm btn-imprimir-practica-item" data-practica-id="${s.id}" style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
+                          🖨️ Imprimir Pedido Oficial PAMI
+                        </button>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+
+          </div>
+
+          </div>
+
         </div>
       </div>
     </div>
@@ -584,6 +861,48 @@ export function renderLegajosView(container) {
       renderLegajosView(container);
     };
   }
+
+  // --- Handlers PAMI Res. 284/05 ---
+  const btnRegVisita = document.getElementById('btn-registrar-visita-cabecera');
+  if (btnRegVisita) {
+    btnRegVisita.onclick = () => {
+      openRegistrarVisitaModal(selectedRes, () => renderLegajosView(container));
+    };
+  }
+
+  const btnNuevaDeriv = document.getElementById('btn-nueva-derivacion-hosp');
+  if (btnNuevaDeriv) {
+    btnNuevaDeriv.onclick = () => {
+      openRegistrarDerivacionModal(selectedRes, null, () => renderLegajosView(container));
+    };
+  }
+
+  container.querySelectorAll('.btn-registrar-epicrisis-item').forEach(btn => {
+    btn.onclick = () => {
+      const refId = btn.getAttribute('data-ref-id');
+      const ref = (selectedRes.referencias_contrarreferencias || []).find(r => r.id === refId);
+      if (ref) {
+        openRegistrarDerivacionModal(selectedRes, ref, () => renderLegajosView(container));
+      }
+    };
+  });
+
+  const btnSolicPractica = document.getElementById('btn-solicitar-practica-dom');
+  if (btnSolicPractica) {
+    btnSolicPractica.onclick = () => {
+      openSolicitarPracticaModal(selectedRes, () => renderLegajosView(container));
+    };
+  }
+
+  container.querySelectorAll('.btn-imprimir-practica-item').forEach(btn => {
+    btn.onclick = () => {
+      const pracId = btn.getAttribute('data-practica-id');
+      const prac = (selectedRes.solicitudes_practicas_nivel1 || []).find(s => s.id === pracId);
+      if (prac) {
+        openPrintPracticaDomiciliariaModal(selectedRes, prac, activeProf);
+      }
+    };
+  });
 }
 
 function renderFormularioNuevoResidente(container) {
