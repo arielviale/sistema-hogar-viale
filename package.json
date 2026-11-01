@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node dev-server.js",
-    "dev": "node dev-server.js"
+    "dev": "node scripts/dev-server.js"
   }
 }
