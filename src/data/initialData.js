@@ -7,7 +7,7 @@ export const INITIAL_AUTORIDAD_MUNICIPAL = {
   cargo: "Secretaría de Desarrollo Social y Humano",
   organismo: "Municipalidad de Viale",
   rol_institucional: "Representante Municipal a Cargo del Hogar Madre Teresa",
-  foto_url: "assets/bibiana_rojas.png"
+  foto_url: "assets/bibiana_rojas.png?v=2"
 };
 
 export const INITIAL_PROFESIONALES = [
