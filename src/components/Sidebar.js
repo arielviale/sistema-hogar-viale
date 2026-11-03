@@ -20,17 +20,23 @@ export function renderSidebar(container) {
   container.innerHTML = `
     <aside class="sidebar">
       <!-- Encabezado con Escudo / Logo Municipal -->
-      <div class="sidebar-header">
-        <div class="logo-badge" style="background: linear-gradient(135deg, #009640 0%, #8dc63f 100%);">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
+      <div class="sidebar-header" style="position: relative;">
+        <div style="display: flex; align-items: center; gap: 0.85rem; flex: 1;">
+          <div class="logo-badge" style="background: linear-gradient(135deg, #009640 0%, #8dc63f 100%);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </div>
+          <div>
+            <div class="sidebar-title">Hogar Madre Teresa</div>
+            <div class="sidebar-subtitle" style="color: #86efac; font-weight: 700;">Municipalidad de Viale</div>
+          </div>
         </div>
-        <div>
-          <div class="sidebar-title">Hogar Madre Teresa</div>
-          <div class="sidebar-subtitle" style="color: #86efac; font-weight: 700;">Municipalidad de Viale</div>
-        </div>
+        
+        <button id="btn-close-sidebar" class="sidebar-close-btn no-print" aria-label="Cerrar Menú">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
 
       <!-- Menú de Navegación -->
@@ -128,14 +134,26 @@ export function renderSidebar(container) {
 
   const btnDossier = container.querySelector('#btn-sidebar-dossier');
   if (btnDossier) {
-    btnDossier.onclick = () => openDossierMunicipalModal();
+    btnDossier.onclick = () => {
+      document.body.classList.remove('sidebar-open');
+      openDossierMunicipalModal();
+    };
+  }
+
+  const btnClose = container.querySelector('#btn-close-sidebar');
+  if (btnClose) {
+    btnClose.onclick = () => {
+      document.body.classList.remove('sidebar-open');
+    };
   }
 
   // Listeners de navegación
   container.querySelectorAll('.nav-item').forEach(btn => {
     btn.onclick = () => {
+      document.body.classList.remove('sidebar-open');
       const view = btn.getAttribute('data-view');
       store.setView(view);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
   });
 }

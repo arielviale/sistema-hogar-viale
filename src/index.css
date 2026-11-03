@@ -669,6 +669,326 @@ button, input, select, textarea {
 }
 
 /* ============================================================
+   ELEMENTOS RESPONSIVOS PARA MÓVILES Y PANTALLAS TÁCTILES
+   ============================================================ */
+.mobile-hamburger-btn {
+  display: none;
+}
+
+.sidebar-close-btn {
+  display: none;
+}
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* ============================================================
+   RESPONSIVIDAD: TABLETS Y TELÉFONOS (max-width: 992px)
+   ============================================================ */
+@media (max-width: 992px) {
+  /* Drawer Lateral Táctil */
+  .sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 290px !important;
+    max-width: 86vw !important;
+    height: 100vh !important;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000 !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open {
+    overflow: hidden !important;
+  }
+
+  .sidebar-backdrop {
+    display: block !important;
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 20, 12, 0.68);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  body.sidebar-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-close-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-left: auto;
+  }
+
+  .sidebar-close-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  /* Botón Hamburguesa */
+  .mobile-hamburger-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: #eefcf2;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    color: #007030;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .mobile-hamburger-btn:active {
+    transform: scale(0.95);
+    background: #dcfce7;
+  }
+
+  /* Barra de Navegación Inferior (Bottom Nav) */
+  .mobile-bottom-nav {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid #dcfce7;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 900;
+    box-shadow: 0 -3px 18px rgba(0, 0, 0, 0.08);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 10px;
+    transition: color 0.15s;
+    min-width: 58px;
+  }
+
+  .bottom-nav-item svg {
+    stroke: currentColor;
+    transition: transform 0.15s ease;
+  }
+
+  .bottom-nav-item.active {
+    color: #009640;
+    font-weight: 700;
+  }
+
+  .bottom-nav-item.active svg {
+    stroke: #009640;
+    stroke-width: 2.3;
+    transform: translateY(-1px);
+    filter: drop-shadow(0 2px 4px rgba(0, 150, 64, 0.28));
+  }
+
+  .page-container {
+    padding: 1.5rem 1.25rem 86px 1.25rem !important;
+  }
+
+  .top-navbar {
+    padding: 0 1.25rem;
+  }
+
+  .viale-top-strip {
+    padding: 0.35rem 1.25rem;
+  }
+}
+
+/* ============================================================
+   RESPONSIVIDAD: SMARTPHONES (max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .viale-top-strip {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.85rem;
+    justify-content: center;
+  }
+
+  .viale-top-hours {
+    display: none !important;
+  }
+
+  .top-navbar {
+    height: auto !important;
+    padding: 0.65rem 0.85rem !important;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .navbar-left {
+    gap: 0.5rem !important;
+  }
+
+  .navbar-brand-badge {
+    font-size: 0.72rem !important;
+    padding: 0.25rem 0.6rem !important;
+  }
+
+  .navbar-date-subtitle {
+    display: none !important;
+  }
+
+  .navbar-actions {
+    margin-left: auto;
+    gap: 0.4rem !important;
+  }
+
+  .btn-dossier-nav .btn-text,
+  .btn-reset-nav .btn-text {
+    display: none !important;
+  }
+
+  .navbar-session-label {
+    display: none !important;
+  }
+
+  #navbar-switch-prof {
+    min-width: 135px !important;
+    max-width: 150px !important;
+    font-size: 0.75rem !important;
+    padding: 0.3rem 0.5rem !important;
+  }
+
+  .page-container {
+    padding: 1rem 0.75rem 86px 0.75rem !important;
+  }
+
+  /* Forzar colapso de columnas múltiples a columna única en pantallas chicas */
+  [style*="grid-template-columns: 1fr 1fr"],
+  [style*="grid-template-columns: 220px 1fr 1fr"],
+  [style*="grid-template-columns: 240px 1fr"],
+  [style*="grid-template-columns: 1fr 1.5fr"],
+  [style*="grid-template-columns: 2fr 1fr"],
+  [style*="grid-template-columns: 1fr 2fr"],
+  [style*="grid-template-columns: 1.2fr 1fr"],
+  [style*="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  [style*="grid-template-columns: repeat(4, 1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Tablas con scroll horizontal suave */
+  .table-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: var(--radius-md);
+  }
+
+  table {
+    min-width: 580px;
+  }
+
+  /* Modales responsive adaptados a pantallas táctiles */
+  .modal-content {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    max-height: 92vh !important;
+    margin: 0.5rem auto !important;
+    padding: 1.25rem 1rem !important;
+    overflow-y: auto !important;
+  }
+
+  /* Tamaño de fuente 16px en campos interactivos para evitar zoom involuntario en iOS */
+  input[type="text"],
+  input[type="date"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* Pestañas de Legajo con scroll horizontal táctil */
+  .tabs-header {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 0.35rem !important;
+    padding-bottom: 6px !important;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+  }
+
+  /* Tarjetas con espaciado móvil optimizado */
+  .card {
+    padding: 1.15rem 0.95rem !important;
+  }
+
+  .header-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .header-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+@media (max-width: 480px) {
+  [style*="grid-template-columns: repeat(4, 1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .page-title {
+    font-size: 1.35rem !important;
+  }
+}
+
+/* ============================================================
    ESTILOS FORMALES DE IMPRESIÓN Y EXPORTACIÓN A PDF (A4)
    ============================================================ */
 @media print {

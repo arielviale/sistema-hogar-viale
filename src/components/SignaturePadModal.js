@@ -31,8 +31,8 @@ export function openSignaturePadModal(profesional, onSaveCallback) {
           Dibuje su firma con el ratón o directamente con el dedo en pantalla táctil:
         </p>
 
-        <div style="border: 2px dashed #94a3b8; border-radius: 12px; background: #ffffff; padding: 4px; display: inline-block; box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);">
-          <canvas id="signature-canvas" width="480" height="180" style="touch-action: none; cursor: crosshair; display: block; border-radius: 8px;"></canvas>
+        <div style="border: 2px dashed #94a3b8; border-radius: 12px; background: #ffffff; padding: 4px; display: inline-block; max-width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);">
+          <canvas id="signature-canvas" width="480" height="180" style="touch-action: none; cursor: crosshair; display: block; border-radius: 8px; max-width: 100%; height: auto;"></canvas>
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem;">
@@ -63,23 +63,40 @@ export function openSignaturePadModal(profesional, onSaveCallback) {
 
   let drawing = false;
 
+  const getCanvasCoordinates = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+
+    return {
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
+    };
+  };
+
   const startDraw = (e) => {
     drawing = true;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const { x, y } = getCanvasCoordinates(e);
     ctx.beginPath();
     ctx.moveTo(x, y);
+    if (e.touches) e.preventDefault();
   };
 
   const draw = (e) => {
     if (!drawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const { x, y } = getCanvasCoordinates(e);
     ctx.lineTo(x, y);
     ctx.stroke();
-    e.preventDefault();
+    if (e.touches) e.preventDefault();
   };
 
   const endDraw = () => {
