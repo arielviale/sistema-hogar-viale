@@ -7,6 +7,7 @@ import { store } from '../state/store.js';
 
 export function renderBottomNav(container) {
   const activeView = store.activeView;
+  const tieneAccesoClinico = store.canAccessClinical();
 
   container.innerHTML = `
     <nav class="mobile-bottom-nav no-print" aria-label="Navegación Móvil">
@@ -32,6 +33,7 @@ export function renderBottomNav(container) {
           <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
         </svg>
         <span>VGI/PAI</span>
+        ${!tieneAccesoClinico ? '<span style="font-size: 0.6rem; opacity: 0.8;">🔒</span>' : ''}
       </button>
 
       <button class="bottom-nav-item ${activeView === 'informes' ? 'active' : ''}" data-view="informes">
@@ -40,6 +42,7 @@ export function renderBottomNav(container) {
           <polyline points="14 2 14 8 20 8"></polyline>
         </svg>
         <span>Informes</span>
+        ${!tieneAccesoClinico ? '<span style="font-size: 0.6rem; opacity: 0.8;">🔒</span>' : ''}
       </button>
 
       <button class="bottom-nav-item" id="btn-bottom-menu-toggle" aria-label="Abrir Menú Completo">
@@ -57,6 +60,10 @@ export function renderBottomNav(container) {
   container.querySelectorAll('.bottom-nav-item[data-view]').forEach(btn => {
     btn.onclick = () => {
       const view = btn.getAttribute('data-view');
+      if ((view === 'vgi_pai' || view === 'informes') && !tieneAccesoClinico) {
+        alert("🔒 Acceso Clínico Restringido:\n\nEste módulo está reservado para el Equipo de Salud (Dirección, Médica, Profesionales y Enfermería). Seleccione un usuario clínico en la barra superior para ingresar.");
+        return;
+      }
       document.body.classList.remove('sidebar-open');
       store.setView(view);
       window.scrollTo({ top: 0, behavior: 'smooth' });

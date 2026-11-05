@@ -12,7 +12,7 @@ import {
   INITIAL_INFORMES_PROFESIONALES
 } from '../data/initialData.js';
 
-const STORAGE_KEY = 'hogar_madre_teresa_db_v2';
+const STORAGE_KEY = 'hogar_madre_teresa_db_v3';
 
 class Store {
   constructor() {
@@ -20,7 +20,7 @@ class Store {
     this.data = this.loadData();
     this.activeView = 'dashboard'; // dashboard | legajos | vgi_pai | grilla | diagnostico | planificacion | equipo
     this.selectedResidentId = null;
-    this.currentProfessionalId = 'prof-1'; // Dra. Silvina Rossi por defecto
+    this.currentProfessionalId = 'prof-3'; // Lic. María del Valle Rojas (Coordinadora) por defecto
   }
 
   loadData() {
@@ -37,7 +37,11 @@ class Store {
           'res-6': '/assets/res-6_ester.jpg'
         };
 
-        // Asignación de retratos reales a cada integrante
+        // Mantener nómina oficial actualizada siempre
+        parsed.profesionales = INITIAL_PROFESIONALES;
+        parsed.autoridad_municipal = INITIAL_AUTORIDAD_MUNICIPAL;
+
+        // Asignación de retratos reales a cada integrante y sincronización de referentes familiares
         if (parsed.residentes && Array.isArray(parsed.residentes)) {
           let updated = false;
           parsed.residentes.forEach(r => {
@@ -45,6 +49,31 @@ class Store {
               r.foto_url = FOTOS_MAP[r.id];
               updated = true;
             }
+
+            // Inicializar array de múltiples referentes familiares si no existe
+            if (!r.referentes_familiares || !Array.isArray(r.referentes_familiares) || r.referentes_familiares.length === 0) {
+              const refNombre = r.referente_familiar ? r.referente_familiar.split('(')[0].trim() : "Familiar Referente";
+              const refTel = r.referente_familiar && r.referente_familiar.includes('Tel:') 
+                ? r.referente_familiar.split('Tel:')[1].replace(')', '').trim() 
+                : '0343-154982314';
+              const parentescoDetectado = r.referente_familiar && r.referente_familiar.toLowerCase().includes('hija') ? 'Hija'
+                : (r.referente_familiar && r.referente_familiar.toLowerCase().includes('hijo') ? 'Hijo'
+                : (r.referente_familiar && r.referente_familiar.toLowerCase().includes('esposa') ? 'Esposa' : 'Familiar Directo'));
+
+              r.referentes_familiares = [
+                {
+                  id: `ref-fam-${r.id}-1`,
+                  nombre_completo: refNombre,
+                  parentesco: parentescoDetectado,
+                  telefono: refTel,
+                  direccion: "Viale, Entre Ríos",
+                  es_principal: true,
+                  recibe_informes: true
+                }
+              ];
+              updated = true;
+            }
+
             // Sincronizar campos PAMI Res. 284/05 si faltan en el cache
             const initRes = INITIAL_RESIDENTES.find(ir => ir.id === r.id);
             if (initRes) {
@@ -318,6 +347,19 @@ class Store {
       polifarmacia: false,
       continente: "Continente",
       movilidad: "Autoválido",
+      referentes_familiares: resData.referentes_familiares && resData.referentes_familiares.length > 0 
+        ? resData.referentes_familiares 
+        : [
+            {
+              id: `ref-fam-${Date.now()}-1`,
+              nombre_completo: resData.referente_familiar || "Familiar Referente",
+              parentesco: "Referente Familiar",
+              telefono: resData.telefono_emergencia || "0343-4920112",
+              direccion: "Viale, Entre Ríos",
+              es_principal: true,
+              recibe_informes: true
+            }
+          ],
       historia_clinica: {
         antecedentes: resData.antecedentes || "Sin antecedentes patológicos consignados.",
         alergias: resData.alergias || "No refiere alergias.",
@@ -362,10 +404,112 @@ class Store {
     const idx = this.data.residentes.findIndex(r => r.id === residenteId);
     if (idx !== -1) {
       this.data.residentes[idx] = { ...this.data.residentes[idx], ...updatedFields };
+      this.saveData();
       this.notify();
       return this.data.residentes[idx];
     }
     return null;
+  }
+
+  // Operaciones con Red Vincular y Múltiples Referentes Familiares
+  addReferenteFamiliar(residenteId, referenteData) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res) return null;
+    if (!res.referentes_familiares) res.referentes_familiares = [];
+
+    // Si este se marca como principal, desmarcar anteriores
+    if (referenteData.es_principal) {
+      res.referentes_familiares.forEach(rf => rf.es_principal = false);
+    }
+
+    const newRef = {
+      id: `ref-fam-${Date.now()}`,
+      nombre_completo: referenteData.nombre_completo || "Familiar",
+      parentesco: referenteData.parentesco || "Familiar",
+      telefono: referenteData.telefono || "",
+      direccion: referenteData.direccion || "Viale, Entre Ríos",
+      es_principal: Boolean(referenteData.es_principal),
+      recibe_informes: referenteData.recibe_informes !== false
+    };
+
+    res.referentes_familiares.push(newRef);
+    // Sincronizar string legado para mantener compatibilidad
+    if (newRef.es_principal || res.referentes_familiares.length === 1) {
+      res.referente_familiar = `${newRef.nombre_completo} (${newRef.parentesco} - Tel: ${newRef.telefono})`;
+    }
+
+    this.saveData();
+    this.notify();
+    return newRef;
+  }
+
+  removeReferenteFamiliar(residenteId, refId) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res || !res.referentes_familiares) return;
+
+    res.referentes_familiares = res.referentes_familiares.filter(rf => rf.id !== refId);
+    if (res.referentes_familiares.length > 0 && !res.referentes_familiares.some(rf => rf.es_principal)) {
+      res.referentes_familiares[0].es_principal = true;
+      res.referente_familiar = `${res.referentes_familiares[0].nombre_completo} (${res.referentes_familiares[0].parentesco} - Tel: ${res.referentes_familiares[0].telefono})`;
+    }
+    this.saveData();
+    this.notify();
+  }
+
+  setReferentePrincipal(residenteId, refId) {
+    const res = this.data.residentes.find(r => r.id === residenteId);
+    if (!res || !res.referentes_familiares) return;
+
+    res.referentes_familiares.forEach(rf => {
+      rf.es_principal = (rf.id === refId);
+      if (rf.es_principal) {
+        res.referente_familiar = `${rf.nombre_completo} (${rf.parentesco} - Tel: ${rf.telefono})`;
+      }
+    });
+    this.saveData();
+    this.notify();
+  }
+
+  // --- Control de Acceso por Roles y Sectores (RBAC) ---
+  canAccessClinical() {
+    const prof = this.getActiveProfessional();
+    if (!prof) return true;
+    return prof.acceso_clinico === true || 
+           ['coordinacion', 'medica', 'interdisciplinario', 'enfermeria'].includes(prof.sector) ||
+           ['admin_clinico', 'medica', 'profesional_salud', 'enfermera'].includes(prof.role);
+  }
+
+  canEditVgiPai() {
+    const prof = this.getActiveProfessional();
+    if (!prof) return true;
+    return ['coordinacion', 'medica', 'interdisciplinario'].includes(prof.sector) ||
+           ['admin_clinico', 'medica', 'profesional_salud'].includes(prof.role);
+  }
+
+  canAccessCocina() {
+    const prof = this.getActiveProfessional();
+    if (!prof) return true;
+    return prof.sector === 'cocina' || prof.sector === 'coordinacion' || prof.role === 'admin_clinico' || prof.role === 'nutricionista';
+  }
+
+  isCuidadorOrEnfermero() {
+    const prof = this.getActiveProfessional();
+    if (!prof) return true;
+    return prof.sector === 'cuidadores' || prof.sector === 'enfermeria' || prof.role === 'cuidador' || prof.role === 'enfermera';
+  }
+
+  getSectorInfo(sectorKey) {
+    const SECTORES = {
+      coordinacion: { label: "Coordinación General", icono: "👑", badge: "badge-coordinacion", accesoTotal: true },
+      medica: { label: "Atención Médica", icono: "🩺", badge: "badge-medica", accesoTotal: true },
+      interdisciplinario: { label: "Equipo Interdisciplinario", icono: "🧩", badge: "badge-interdisciplinario", accesoTotal: true },
+      enfermeria: { label: "Enfermería Institucional", icono: "💉", badge: "badge-enfermeria", accesoTotal: true },
+      cuidadores: { label: "Cuidadores y Auxiliares", icono: "🤝", badge: "badge-cuidadores", accesoTotal: false },
+      talleres: { label: "Talleres y Estimulación", icono: "🎨", badge: "badge-talleres", accesoTotal: false },
+      cocina: { label: "Servicio de Cocina", icono: "🍲", badge: "badge-cocina", accesoTotal: false },
+      mantenimiento: { label: "Ordenanza y Limpieza", icono: "🧹", badge: "badge-mantenimiento", accesoTotal: false }
+    };
+    return SECTORES[sectorKey] || { label: sectorKey || "General", icono: "👤", badge: "badge-secondary", accesoTotal: false };
   }
 
   addEvolucionMedica(residenteId, evolucion) {

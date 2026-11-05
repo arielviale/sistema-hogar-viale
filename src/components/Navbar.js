@@ -17,6 +17,35 @@ export function renderNavbar(container) {
     day: 'numeric'
   });
 
+  const SECTORES_ORDEN = [
+    { key: "coordinacion", label: "👑 Coordinación General" },
+    { key: "medica", label: "🩺 Atención Médica" },
+    { key: "interdisciplinario", label: "🧩 Equipo Interdisciplinario" },
+    { key: "enfermeria", label: "💉 Enfermería Institucional" },
+    { key: "cuidadores", label: "🤝 Cuidadores y Auxiliares" },
+    { key: "talleres", label: "🎨 Estimulación y Talleres" },
+    { key: "cocina", label: "🍲 Servicio de Cocina" },
+    { key: "mantenimiento", label: "🧹 Ordenanza y Limpieza" }
+  ];
+
+  const renderSelectOptions = () => {
+    return SECTORES_ORDEN.map(sec => {
+      const profsSec = profesionales.filter(p => p.sector === sec.key);
+      if (profsSec.length === 0) return '';
+      return `
+        <optgroup label="${sec.label}">
+          ${profsSec.map(p => `
+            <option value="${p.id}" ${p.id === activeProf.id ? 'selected' : ''}>
+              ${p.nombre_completo} (${p.especialidad ? p.especialidad.split('/')[0].trim() : p.profesion})
+            </option>
+          `).join('')}
+        </optgroup>
+      `;
+    }).join('');
+  };
+
+  const tieneAccesoClinico = store.canAccessClinical();
+
   container.innerHTML = `
     <!-- Franja Superior Oficial viale.gob.ar -->
     <div class="viale-top-strip no-print">
@@ -56,16 +85,15 @@ export function renderNavbar(container) {
           🏛️ <span class="btn-text">Dossier Municipal</span>
         </button>
 
-        <!-- Selector rápido de usuario profesional -->
+        <!-- Selector de personal clasificado por sector -->
         <div class="navbar-session-box" style="display: flex; align-items: center; gap: 0.4rem;">
           <span class="navbar-session-label" style="font-size: 0.78rem; font-weight: 600; color: #475569;">Sesión:</span>
-          <select id="navbar-switch-prof" class="form-select" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; font-weight: 600; min-width: 160px; border-color: #86efac;">
-            ${profesionales.map(p => `
-              <option value="${p.id}" ${p.id === activeProf.id ? 'selected' : ''}>
-                ${p.nombre_completo} (${p.especialidad.split('/')[0].trim()})
-              </option>
-            `).join('')}
+          <select id="navbar-switch-prof" class="form-select" style="font-size: 0.8rem; padding: 0.35rem 0.65rem; font-weight: 600; min-width: 195px; border-color: #86efac;">
+            ${renderSelectOptions()}
           </select>
+          <span class="no-print" style="font-size: 0.68rem; font-weight: 700; padding: 3px 8px; border-radius: 9999px; white-space: nowrap; ${tieneAccesoClinico ? 'background: #dcfce7; color: #166534; border: 1px solid #86efac;' : 'background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;'}">
+            ${tieneAccesoClinico ? '✓ Acceso Total' : '🔒 Restringido'}
+          </span>
         </div>
 
         <button id="btn-navbar-reset-db" title="Reiniciar datos de prueba" class="btn btn-secondary btn-sm btn-reset-nav" style="font-size: 0.75rem; padding: 0.35rem 0.55rem;">

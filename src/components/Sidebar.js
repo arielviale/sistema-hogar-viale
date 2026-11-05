@@ -10,6 +10,7 @@ export function renderSidebar(container) {
   const activeView = store.activeView;
   const activeProf = store.getActiveProfessional();
   const stats = store.getEstadisticas();
+  const tieneAccesoClinico = store.canAccessClinical();
   const autoridad = store.data.autoridad_municipal || {
     nombre_completo: "Bibiana Rojas",
     cargo: "Secretaría de Desarrollo Social y Humano",
@@ -53,31 +54,36 @@ export function renderSidebar(container) {
           Legajos Únicos (LUR)
         </button>
 
-        <button class="nav-item ${activeView === 'vgi_pai' ? 'active' : ''}" data-view="vgi_pai">
+        <button class="nav-item ${activeView === 'vgi_pai' ? 'active' : ''} ${!tieneAccesoClinico ? 'nav-restricted' : ''}" data-view="vgi_pai" data-restricted="${!tieneAccesoClinico}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           VGI & PAI
-          ${stats.vencidas > 0 ? `
+          ${!tieneAccesoClinico ? `
+            <span style="margin-left: auto; font-size: 0.7rem; opacity: 0.7;">🔒</span>
+          ` : stats.vencidas > 0 ? `
             <span style="margin-left: auto; background: #ef4444; color: white; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 9999px;">
               ${stats.vencidas}
             </span>
           ` : ''}
         </button>
 
-        <button class="nav-item ${activeView === 'informes' ? 'active' : ''}" data-view="informes">
+        <button class="nav-item ${activeView === 'informes' ? 'active' : ''} ${!tieneAccesoClinico ? 'nav-restricted' : ''}" data-view="informes" data-restricted="${!tieneAccesoClinico}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Informes Profesionales
+          ${!tieneAccesoClinico ? `<span style="margin-left: auto; font-size: 0.7rem; opacity: 0.7;">🔒</span>` : ''}
         </button>
 
         <div class="nav-section-label">Epidemiología y Datos</div>
 
-        <button class="nav-item ${activeView === 'grilla' ? 'active' : ''}" data-view="grilla">
+        <button class="nav-item ${activeView === 'grilla' ? 'active' : ''} ${!tieneAccesoClinico ? 'nav-restricted' : ''}" data-view="grilla" data-restricted="${!tieneAccesoClinico}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           Grilla de Recolección
+          ${!tieneAccesoClinico ? `<span style="margin-left: auto; font-size: 0.7rem; opacity: 0.7;">🔒</span>` : ''}
         </button>
 
-        <button class="nav-item ${activeView === 'diagnostico' ? 'active' : ''}" data-view="diagnostico">
+        <button class="nav-item ${activeView === 'diagnostico' ? 'active' : ''} ${!tieneAccesoClinico ? 'nav-restricted' : ''}" data-view="diagnostico" data-restricted="${!tieneAccesoClinico}">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
           Diagnóstico Poblacional
+          ${!tieneAccesoClinico ? `<span style="margin-left: auto; font-size: 0.7rem; opacity: 0.7;">🔒</span>` : ''}
         </button>
 
         <div class="nav-section-label">Institucional</div>
@@ -89,10 +95,19 @@ export function renderSidebar(container) {
 
         <button class="nav-item ${activeView === 'equipo' ? 'active' : ''}" data-view="equipo">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          Equipo Profesional
+          Personal & Sectores (${store.data.profesionales.length})
         </button>
 
         <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0, 150, 64, 0.22); border: 1px solid rgba(141, 198, 63, 0.35); border-radius: 10px;">
+          <div style="font-size: 0.7rem; font-weight: 800; color: #86efac; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
+            Presentación de Gestión
+          </div>
+          <button id="btn-sidebar-dossier" style="width: 100%; display: flex; align-items: center; gap: 0.5rem; justify-content: center; background: #009640; color: white; border: 1px solid #8dc63f; border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: background 0.2s;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"/></svg>
+            Dossier Municipal
+          </button>
+        </div>
+      </nav>
           <div style="font-size: 0.7rem; font-weight: 800; color: #86efac; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem;">
             Presentación de Gestión
           </div>
@@ -147,9 +162,14 @@ export function renderSidebar(container) {
     };
   }
 
-  // Listeners de navegación
+  // Listeners de navegación con control de acceso RBAC
   container.querySelectorAll('.nav-item').forEach(btn => {
     btn.onclick = () => {
+      const isRestricted = btn.getAttribute('data-restricted') === 'true';
+      if (isRestricted) {
+        alert("🔒 Acceso Clínico Restringido:\n\nEste módulo contiene historias clínicas confidenciales y auditorías normativas habilitadas exclusivamente para Dirección/Coordinación, Médica, Equipo Interdisciplinario y Enfermería conforme al secreto profesional y la Res. 284/05 PAMI.\n\nPara acceder, seleccione un usuario del equipo de salud en la barra superior.");
+        return;
+      }
       document.body.classList.remove('sidebar-open');
       const view = btn.getAttribute('data-view');
       store.setView(view);

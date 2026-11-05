@@ -178,17 +178,20 @@ export function renderLegajosView(container) {
             <button class="tab-btn active" data-tab="filiatorios">
               📋 1. Datos Filiatorios y Admisión
             </button>
+            <button class="tab-btn" data-tab="familiares">
+              👨‍👩‍👧‍👦 2. Referentes Familiares (${selectedRes.referentes_familiares ? selectedRes.referentes_familiares.length : 1})
+            </button>
             <button class="tab-btn" data-tab="clinica">
-              🩺 2. Historia Clínica y Medicación
+              🩺 3. Historia Clínica y Medicación
             </button>
             <button class="tab-btn" data-tab="social">
-              🤝 3. Historia Social y Vínculos
+              🤝 4. Historia Social y Vínculos
             </button>
             <button class="tab-btn" data-tab="especialidades">
-              🧩 4. Valoraciones Interdisciplinarias
+              🧩 5. Valoraciones Interdisciplinarias
             </button>
             <button class="tab-btn" data-tab="pami">
-              🏛️ 5. Médico de Cabecera y PAMI (Res. 284/05)
+              🏛️ 6. Médico de Cabecera y PAMI (Res. 284/05)
             </button>
           </div>
         </div>
@@ -241,12 +244,99 @@ export function renderLegajosView(container) {
                   <div><strong>Movilidad Habitual:</strong> ${selectedRes.movilidad}</div>
                   <div><strong>Continencia de Esfínteres:</strong> ${selectedRes.continente}</div>
                   <div><strong>Polifarmacia:</strong> ${selectedRes.polifarmacia ? 'Sí (> 5 principios activos)' : 'No'}</div>
-                  <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #cbd5e1; font-size: 0.78rem; color: #007030;">
-                    ✓ Conforme a la Guía de Atención de Residencias Geriátricas de Entre Ríos
+                  
+                  <div style="margin-top: 0.75rem; padding-top: 0.65rem; border-top: 1px dashed #cbd5e1;">
+                    <button id="btn-ir-tab-familiares" type="button" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; font-size: 0.78rem;">
+                      👨‍👩‍👧‍👦 Gestionar Red de Familiares (${selectedRes.referentes_familiares ? selectedRes.referentes_familiares.length : 1})
+                    </button>
                   </div>
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          <!-- PESTAÑA 2: REFERENTES FAMILIARES Y RED VINCULAR -->
+          <div id="tab-content-familiares" class="tab-pane animate-fade-in" style="display: none; margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+                  <span>👨‍👩‍👧‍👦</span> Red Vincular Familiar y Contactos de Emergencia (${selectedRes.referentes_familiares ? selectedRes.referentes_familiares.length : 0})
+                </h3>
+                <p style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">
+                  Familiares habilitados para partes evolutivos, régimen de visitas y comunicación inmediata ante urgencias o traslados
+                </p>
+              </div>
+
+              <button id="btn-abrir-modal-nuevo-familiar" class="btn btn-primary btn-sm">
+                + Sumar Referente Familiar
+              </button>
+            </div>
+
+            <!-- Grilla de Tarjetas de Referentes Familiares -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
+              ${(selectedRes.referentes_familiares || []).map(ref => `
+                <div class="card" style="border: 2px solid ${ref.es_principal ? '#009640' : '#e2e8f0'}; background: ${ref.es_principal ? '#f0fdf4' : '#ffffff'}; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; gap: 0.5rem;">
+                      <div>
+                        <div style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 800; color: #007030; background: #dcfce7; padding: 2px 7px; border-radius: 6px; margin-bottom: 0.35rem;">
+                          ${ref.parentesco}
+                        </div>
+                        <h4 style="font-size: 1.1rem; font-weight: 800; color: #0f172a; line-height: 1.2;">
+                          ${ref.nombre_completo}
+                        </h4>
+                      </div>
+
+                      ${ref.es_principal ? `
+                        <span style="font-size: 0.7rem; font-weight: 800; color: #ffffff; background: #009640; padding: 3px 8px; border-radius: 9999px; white-space: nowrap;">
+                          ⭐ Principal
+                        </span>
+                      ` : `
+                        <button class="btn btn-secondary btn-sm btn-hacer-principal" data-ref-id="${ref.id}" style="font-size: 0.7rem; padding: 2px 7px;">
+                          Hacer Principal
+                        </button>
+                      `}
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.35rem; font-size: 0.85rem; color: #334155; margin-top: 0.5rem;">
+                      <div>
+                        <strong>Teléfono / Celular:</strong> 
+                        <span style="font-family: var(--font-mono); font-weight: 700; color: #007030; margin-left: 0.25rem;">
+                          ${ref.telefono || 'Sin registrar'}
+                        </span>
+                      </div>
+                      <div>
+                        <strong>Domicilio:</strong> 
+                        <span style="color: #64748b; margin-left: 0.25rem;">${ref.direccion || 'Viale, Entre Ríos'}</span>
+                      </div>
+                      <div style="font-size: 0.78rem; color: #166534; font-weight: 600; margin-top: 0.25rem;">
+                        ✓ Autorizado para novedades clínicas e institucionales
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Botones de Acción Telefónica y WhatsApp -->
+                  <div style="display: flex; gap: 0.5rem; margin-top: 1rem; border-top: 1px dashed ${ref.es_principal ? '#86efac' : '#e2e8f0'}; padding-top: 0.75rem; align-items: center;">
+                    ${ref.telefono ? `
+                      <a href="tel:${ref.telefono}" class="btn btn-outline btn-sm" style="flex: 1; justify-content: center; font-size: 0.78rem; padding: 0.35rem 0.5rem;">
+                        📞 Llamar
+                      </a>
+                      <a href="https://wa.me/549${ref.telefono.replace(/\D/g, '')}" target="_blank" rel="noopener noreferrer" class="btn btn-viale btn-sm" style="flex: 1; justify-content: center; font-size: 0.78rem; padding: 0.35rem 0.5rem;">
+                        💬 WhatsApp
+                      </a>
+                    ` : `
+                      <span style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">Sin teléfono</span>
+                    `}
+
+                    ${!ref.es_principal && (selectedRes.referentes_familiares || []).length > 1 ? `
+                      <button class="btn btn-secondary btn-sm btn-eliminar-familiar" data-ref-id="${ref.id}" title="Quitar este familiar" style="padding: 0.35rem 0.55rem; color: #ef4444;">
+                        ✕
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
             </div>
           </div>
 
@@ -755,6 +845,134 @@ export function renderLegajosView(container) {
     };
   }
 
+  // --- Handlers de Pestaña Referentes Familiares ---
+  const btnIrFam = document.getElementById('btn-ir-tab-familiares');
+  if (btnIrFam) {
+    btnIrFam.onclick = () => {
+      const tabBtn = container.querySelector('.tab-btn[data-tab="familiares"]');
+      if (tabBtn) tabBtn.click();
+    };
+  }
+
+  // Marcar familiar como principal
+  container.querySelectorAll('.btn-hacer-principal').forEach(btn => {
+    btn.onclick = () => {
+      const refId = btn.getAttribute('data-ref-id');
+      store.setReferentePrincipal(selectedRes.id, refId);
+      renderLegajosView(container);
+      const tabBtn = container.querySelector('.tab-btn[data-tab="familiares"]');
+      if (tabBtn) tabBtn.click();
+    };
+  });
+
+  // Eliminar familiar
+  container.querySelectorAll('.btn-eliminar-familiar').forEach(btn => {
+    btn.onclick = () => {
+      const refId = btn.getAttribute('data-ref-id');
+      if (confirm("¿Desea desvincular a este referente familiar del residente?")) {
+        store.removeReferenteFamiliar(selectedRes.id, refId);
+        renderLegajosView(container);
+        const tabBtn = container.querySelector('.tab-btn[data-tab="familiares"]');
+        if (tabBtn) tabBtn.click();
+      }
+    };
+  });
+
+  // Modal para sumar nuevo familiar en residente existente
+  const btnAbrirModalFam = document.getElementById('btn-abrir-modal-nuevo-familiar');
+  if (btnAbrirModalFam) {
+    btnAbrirModalFam.onclick = () => {
+      const modal = document.createElement('div');
+      modal.id = 'modal-nuevo-familiar-backdrop';
+      modal.style.cssText = 'position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(2px);';
+      modal.innerHTML = `
+        <div style="background: white; border-radius: 14px; width: 95%; max-width: 480px; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: #0f172a;">Sumar Referente Familiar</h3>
+              <p style="font-size: 0.82rem; color: #64748b; margin-top: 2px;">Residente: <strong>${selectedRes.nombre_completo}</strong></p>
+            </div>
+            <button id="btn-cerrar-modal-fam" style="background: none; border: none; font-size: 1.25rem; color: #94a3b8; cursor: pointer;">✕</button>
+          </div>
+
+          <form id="form-nuevo-familiar-submit">
+            <div class="form-group" style="margin-bottom: 0.85rem;">
+              <label class="form-label">Nombre y Apellido Completo *</label>
+              <input type="text" id="mf-nombre" class="form-input" required placeholder="Ej. Roberto Fontana" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+              <div class="form-group">
+                <label class="form-label">Parentesco *</label>
+                <select id="mf-parentesco" class="form-select">
+                  <option value="Hijo">Hijo</option>
+                  <option value="Hija">Hija</option>
+                  <option value="Cónyuge">Cónyuge / Pareja</option>
+                  <option value="Hermano">Hermano</option>
+                  <option value="Hermana">Hermana</option>
+                  <option value="Sobrina">Sobrina</option>
+                  <option value="Sobrino">Sobrino</option>
+                  <option value="Nieto/a">Nieto/a</option>
+                  <option value="Apoderado Legal">Apoderado Legal</option>
+                  <option value="Vecino/Allegado">Vecino/Allegado</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Teléfono / WhatsApp *</label>
+                <input type="text" id="mf-telefono" class="form-input" required placeholder="Ej. 0343-154887711" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+              <label class="form-label">Domicilio / Localidad</label>
+              <input type="text" id="mf-direccion" class="form-input" placeholder="Ej. Viale, Entre Ríos" value="Viale, Entre Ríos" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem; background: #f8fafc; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; font-weight: 600; color: #334155; cursor: pointer;">
+                <input type="checkbox" id="mf-principal" />
+                Establecer como Referente Principal de Urgencias Médicas
+              </label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 0.65rem;">
+              <button type="button" id="btn-cancelar-modal-fam" class="btn btn-secondary btn-sm">Cancelar</button>
+              <button type="submit" class="btn btn-primary btn-sm">Guardar Referente</button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+
+      const closeModal = () => modal.remove();
+      modal.querySelector('#btn-cerrar-modal-fam').onclick = closeModal;
+      modal.querySelector('#btn-cancelar-modal-fam').onclick = closeModal;
+
+      modal.querySelector('#form-nuevo-familiar-submit').onsubmit = (e) => {
+        e.preventDefault();
+        const nom = document.getElementById('mf-nombre').value.trim();
+        const par = document.getElementById('mf-parentesco').value;
+        const tel = document.getElementById('mf-telefono').value.trim();
+        const dir = document.getElementById('mf-direccion').value.trim();
+        const esPrinc = document.getElementById('mf-principal').checked;
+
+        store.addReferenteFamiliar(selectedRes.id, {
+          nombre_completo: nom,
+          parentesco: par,
+          telefono: tel,
+          direccion: dir,
+          es_principal: esPrinc
+        });
+
+        closeModal();
+        renderLegajosView(container);
+        const tabBtn = container.querySelector('.tab-btn[data-tab="familiares"]');
+        if (tabBtn) tabBtn.click();
+      };
+    };
+  }
+
   // Botón Cambiar Habitación / Sector
   const btnCambiarSector = document.getElementById('btn-cambiar-sector-res');
   if (btnCambiarSector) {
@@ -958,7 +1176,7 @@ function renderFormularioNuevoResidente(container) {
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
           <div class="form-group">
             <label class="form-label">Habitación (Nº) *</label>
             <input type="text" id="n-habitacion" class="form-input" required placeholder="Ej. Habitación 07" value="Habitación 07" />
@@ -970,9 +1188,53 @@ function renderFormularioNuevoResidente(container) {
               <option value="Sector Mujeres">Sector Mujeres</option>
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Referente Familiar / Teléfono *</label>
-            <input type="text" id="n-referente" class="form-input" required placeholder="Ej. Laura Schmidt (Hija - 0343-154...) " />
+        </div>
+
+        <!-- Bloque Dinámico de Red Vincular y Múltiples Referentes Familiares -->
+        <div style="background: #f8fafc; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <label class="form-label" style="font-size: 0.95rem; font-weight: 800; color: #007030; margin-bottom: 2px;">
+                👨‍👩‍👧‍👦 Red Vincular y Referentes Familiares
+              </label>
+              <div style="font-size: 0.78rem; color: #64748b;">
+                Registre al familiar responsable principal y sume familiares adicionales con el botón
+              </div>
+            </div>
+            <button type="button" id="btn-sumar-familiar-alta" class="btn btn-outline btn-sm" style="font-size: 0.75rem;">
+              + Sumar Otro Referente Familiar
+            </button>
+          </div>
+
+          <div id="contenedor-referentes-alta">
+            <!-- Fila Referente Principal (Obligatorio) -->
+            <div class="referente-alta-card" style="background: #ffffff; border: 1px solid #86efac; border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;">
+              <div style="font-size: 0.72rem; font-weight: 800; color: #007030; margin-bottom: 0.4rem; text-transform: uppercase;">
+                ⭐ Referente Principal de Urgencias y Contacto
+              </div>
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 0.65rem;">
+                <div>
+                  <input type="text" class="form-input ref-nombre" required placeholder="Nombre y Apellido (ej. Laura Schmidt)" />
+                </div>
+                <div>
+                  <select class="form-select ref-parentesco">
+                    <option value="Hija">Hija</option>
+                    <option value="Hijo">Hijo</option>
+                    <option value="Cónyuge">Cónyuge</option>
+                    <option value="Hermana">Hermana</option>
+                    <option value="Hermano">Hermano</option>
+                    <option value="Sobrina">Sobrina</option>
+                    <option value="Sobrino">Sobrino</option>
+                    <option value="Nieto/a">Nieto/a</option>
+                    <option value="Apoderado Legal">Apoderado Legal</option>
+                    <option value="Otro Vínculo">Otro</option>
+                  </select>
+                </div>
+                <div>
+                  <input type="text" class="form-input ref-telefono" required placeholder="Teléfono / Celular (ej. 0343-154982314)" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1000,6 +1262,45 @@ function renderFormularioNuevoResidente(container) {
     };
   }
 
+  // Handler para sumar familiares dinámicos en el alta
+  const btnSumarRef = document.getElementById('btn-sumar-familiar-alta');
+  if (btnSumarRef) {
+    btnSumarRef.onclick = () => {
+      const containerRefs = document.getElementById('contenedor-referentes-alta');
+      const div = document.createElement('div');
+      div.className = 'referente-alta-card';
+      div.style.cssText = 'background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.85rem; margin-bottom: 0.75rem;';
+      div.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <span style="font-size: 0.72rem; font-weight: 700; color: #475569;">
+            Familiar de Contacto Adicional
+          </span>
+          <button type="button" class="btn-quitar-ref-alta" style="background: none; border: none; color: #ef4444; font-size: 0.75rem; cursor: pointer; font-weight: 700;">
+            ✕ Quitar
+          </button>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1.5fr; gap: 0.65rem;">
+          <input type="text" class="form-input ref-nombre" required placeholder="Nombre y Apellido" />
+          <select class="form-select ref-parentesco">
+            <option value="Hijo">Hijo</option>
+            <option value="Hija">Hija</option>
+            <option value="Cónyuge">Cónyuge</option>
+            <option value="Hermano">Hermano</option>
+            <option value="Hermana">Hermana</option>
+            <option value="Sobrino">Sobrino</option>
+            <option value="Sobrina">Sobrina</option>
+            <option value="Nieto/a">Nieto/a</option>
+            <option value="Apoderado Legal">Apoderado Legal</option>
+            <option value="Vecino/Allegado">Vecino/Allegado</option>
+          </select>
+          <input type="text" class="form-input ref-telefono" required placeholder="Teléfono / Celular" />
+        </div>
+      `;
+      div.querySelector('.btn-quitar-ref-alta').onclick = () => div.remove();
+      containerRefs.appendChild(div);
+    };
+  }
+
   document.getElementById('form-nuevo-res-submit').onsubmit = (e) => {
     e.preventDefault();
     const fnac = document.getElementById('n-fnac').value;
@@ -1011,6 +1312,29 @@ function renderFormularioNuevoResidente(container) {
     const sectorVal = document.getElementById('n-sector').value;
     const finalHab = habInput.toLowerCase().startsWith('hab') ? habInput : `Habitación ${habInput}`;
 
+    // Recolectar lista dinámica de referentes
+    const referentes = [];
+    document.querySelectorAll('.referente-alta-card').forEach((card, idx) => {
+      const nom = card.querySelector('.ref-nombre') ? card.querySelector('.ref-nombre').value.trim() : '';
+      const par = card.querySelector('.ref-parentesco') ? card.querySelector('.ref-parentesco').value : 'Familiar';
+      const tel = card.querySelector('.ref-telefono') ? card.querySelector('.ref-telefono').value.trim() : '';
+      if (nom) {
+        referentes.push({
+          id: `ref-fam-${Date.now()}-${idx}`,
+          nombre_completo: nom,
+          parentesco: par,
+          telefono: tel,
+          direccion: "Viale, Entre Ríos",
+          es_principal: idx === 0,
+          recibe_informes: true
+        });
+      }
+    });
+
+    const refPrincipalStr = referentes.length > 0 
+      ? `${referentes[0].nombre_completo} (${referentes[0].parentesco} - Tel: ${referentes[0].telefono})`
+      : 'Referente Familiar';
+
     const newRes = store.addResidente({
       nombre_completo: document.getElementById('n-nombre').value,
       dni: document.getElementById('n-dni').value,
@@ -1021,11 +1345,13 @@ function renderFormularioNuevoResidente(container) {
       obra_social: document.getElementById('n-obra-social').value,
       nro_afiliado: document.getElementById('n-afiliado').value,
       estado_habitacional: `${finalHab} - ${sectorVal}`,
-      referente_familiar: document.getElementById('n-referente').value,
+      referentes_familiares: referentes,
+      referente_familiar: refPrincipalStr,
+      telefono_emergencia: referentes[0] && referentes[0].telefono ? referentes[0].telefono : "0343-4920112 (Hospital San Roque Viale)",
       antecedentes: document.getElementById('n-antecedentes').value
     });
 
-    alert(`¡Legajo Único ${newRes.numero_legajo} creado con éxito en ${newRes.estado_habitacional}!`);
+    alert(`¡Legajo Único ${newRes.numero_legajo} creado con éxito con ${referentes.length} referente(s) familiar(es) en ${newRes.estado_habitacional}!`);
     store.setView('legajos', newRes.id);
   };
 }
